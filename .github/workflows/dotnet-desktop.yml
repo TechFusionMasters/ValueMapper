@@ -90,18 +90,35 @@ jobs:
             ./test-results/**/coverage.cobertura.xml
           if-no-files-found: warn
 
+      - name: Debug paths
+        run: |
+          echo "Solution path: ${{ env.SOLUTION_PATH }}"
+          echo "Package project path: ${{ env.PACKAGE_PROJECT_PATH }}"
+          echo "Package output directory: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}"
+          ls -la SimpleMapper/SimpleMapper/ || echo "Directory not found"
+
       - name: Pack
         run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} \
           --configuration Release \
-          --no-build \
           --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg
+          if-no-files-found: error
 
   publish-nuget:
     needs: build-test-pack
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') # only on tag pushes
     steps:
-      - uses: actions/checkout@v4
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
@@ -110,7 +127,7 @@ jobs:
 
       - name: Push to NuGet.org
         env:
-          # this secret must be defined in your repo’s Settings → Secrets → Actions
+          # this secret must be defined in your repo's Settings → Secrets → Actions
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           dotnet nuget push \
