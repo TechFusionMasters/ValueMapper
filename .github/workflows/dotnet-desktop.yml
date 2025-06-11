@@ -70,11 +70,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Push to NuGet.org
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          # Add the NuGet source with explicit credentials
-          dotnet nuget add source ${{ env.NUGET_SOURCE_URL }} --name nuget.org --username username --password $NUGET_API_KEY --store-password-in-clear-text
+          # Create a new NuGet config file
+          dotnet new nugetconfig --force
 
-          # Push the package with explicit API key
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --api-key $NUGET_API_KEY --source nuget.org
+          # Set up NuGet config with API key
+          dotnet nuget add source ${{ env.NUGET_SOURCE_URL }} --name nuget.org
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source nuget.org --skip-duplicate
