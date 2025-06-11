@@ -9,7 +9,6 @@ on:
 
 env:
   SOLUTION_PATH: SimpleMapper/SimpleMapper.sln
-  TEST_PROJECT_PATH: SimpleMapper/UnitTestXUnitNet6/UnitTestXUnitNet6.csproj
   PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper/SimpleMapper.csproj
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
@@ -41,7 +40,7 @@ jobs:
 
   pack:
     name: Package NuGet
-    needs: test
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
