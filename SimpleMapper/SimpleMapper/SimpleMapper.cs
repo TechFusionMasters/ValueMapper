@@ -9,143 +9,220 @@ namespace SimpleMapperUtility
 {
     public static class SimpleMapper
     {
-        private static readonly ConcurrentDictionary<string, Delegate> _mappingCache = new ConcurrentDictionary<string, Delegate>();
-        private static readonly ConcurrentDictionary<string, Dictionary<string, string>> _customMappings = new ConcurrentDictionary<string, Dictionary<string, string>>();
-        private static readonly ConcurrentDictionary<string, HashSet<string>> _ignoredPropertiesCache = new ConcurrentDictionary<string, HashSet<string>>();
-
-        /// <summary>
-        /// Maps the properties of the source object to a new instance of the destination type.
-        /// Supports ignoring properties dynamically via the ignoredProperties parameter.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <typeparam name="TDestination">The destination type.</typeparam>
-        /// <param name="source">The source object to map.</param>
-        /// <param name="ignoredProperties">A set of property names to ignore during mapping.</param>
-        /// <returns>A new instance of TDestination with mapped properties.</returns>
-        public static TDestination Map<TSource, TDestination>(TSource source, HashSet<string> ignoredProperties = null)
-            where TDestination : new()
+        private class ExpiringDelegate
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            string cacheKey = $"{typeof(TSource).FullName}->{typeof(TDestination).FullName}";
-            if (ignoredProperties != null)
-            {
-                string ignoredPropertiesKey = string.Join(",", ignoredProperties.OrderBy(p => p));
-                cacheKey += $"|Ignored:{ignoredPropertiesKey}";
-            }
-
-            if (!_mappingCache.TryGetValue(cacheKey, out var cachedMapping))
-            {
-                var mappingFunction = CreateMappingFunction<TSource, TDestination>(ignoredProperties);
-                _mappingCache[cacheKey] = mappingFunction;
-                cachedMapping = mappingFunction;
-            }
-
-            var mapFunction = (Func<TSource, TDestination>)cachedMapping;
-            return mapFunction(source);
+            public Delegate Func;
+            public DateTime LastAccess;
         }
 
-        /// <summary>
-        /// Maps the properties of a list of source objects to a list of destination type instances.
-        /// Supports ignoring properties dynamically via the ignoredProperties parameter.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <typeparam name="TDestination">The destination type.</typeparam>
-        /// <param name="sourceList">The list of source objects to map.</param>
-        /// <param name="ignoredProperties">A set of property names to ignore during mapping.</param>
-        /// <returns>A list of mapped destination type instances.</returns>
-        public static IList<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> sourceList, HashSet<string> ignoredProperties = null)
+        private static readonly ConcurrentDictionary<string, ExpiringDelegate> _mappingCache = new ConcurrentDictionary<string, ExpiringDelegate>();
+        private static readonly TimeSpan MappingCacheTTL = TimeSpan.FromHours(1);
+
+        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new ConcurrentDictionary<Type, PropertyInfo[]>();
+        private static readonly ConcurrentDictionary<Type, HashSet<string>> _typeIgnoredCache = new ConcurrentDictionary<Type, HashSet<string>>();
+
+        public static TDestination Map<TSource, TDestination>(TSource source, ISet<string> ignoredProperties = null)
             where TDestination : new()
         {
-            if (sourceList == null)
-                throw new ArgumentNullException(nameof(sourceList));
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
-            return sourceList.AsParallel().Select(source => Map<TSource, TDestination>(source, ignoredProperties)).ToList();
+            var map = GetMappingFunc<TSource, TDestination>();
+            var dest = new TDestination();
+            map(source, dest, ignoredProperties);
+            return dest;
         }
 
-        /// <summary>
-        /// Creates a mapping function from the source type to the destination type.
-        /// Supports ignoring specific properties either via attribute or dynamically via parameter.
-        /// </summary>
-        /// <typeparam name="TSource">The source type.</typeparam>
-        /// <typeparam name="TDestination">The destination type.</typeparam>
-        /// <param name="ignoredProperties">A set of property names to ignore during mapping.</param>
-        /// <returns>A compiled function that maps a source object to a destination object.</returns>
-        private static Func<TSource, TDestination> CreateMappingFunction<TSource, TDestination>(HashSet<string> ignoredProperties = null)
+        public static List<TDestination> MapList<TSource, TDestination>(IEnumerable<TSource> list, ISet<string> ignoredProperties = null)
             where TDestination : new()
         {
-            var sourceParameter = Expression.Parameter(typeof(TSource), "source");
-            var destinationVariable = Expression.New(typeof(TDestination));
-            var memberBindings = new List<MemberBinding>();
+            if (list == null) throw new ArgumentNullException(nameof(list));
+            var array = list as TSource[] ?? list.ToArray();
+            const int PAR = 100, MAX = 8;
+            if (array.Length < PAR)
+                return array.Select(x => Map<TSource, TDestination>(x, ignoredProperties)).ToList();
+            return array.AsParallel()
+                        .WithDegreeOfParallelism(Math.Min(Environment.ProcessorCount, MAX))
+                        .Select(x => Map<TSource, TDestination>(x, ignoredProperties))
+                        .ToList();
+        }
 
-            var sourceProperties = typeof(TSource).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var destinationProperties = typeof(TDestination).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (var destinationProperty in destinationProperties)
+        private static Action<TSource, TDestination, ISet<string>> GetMappingFunc<TSource, TDestination>()
+        {
+            var key = $"{typeof(TSource).FullName}->{typeof(TDestination).FullName}";
+            EvictOld();
+            var entry = _mappingCache.GetOrAdd(key, _ => new ExpiringDelegate
             {
-                // Check if property should always be ignored by using SimpleMapperIgnoreAttribute
-                var ignoreAttribute = destinationProperty.GetCustomAttribute<SimpleMapperIgnoreAttribute>();
-                if (ignoreAttribute != null)
-                {
+                Func = BuildMap<TSource, TDestination>(),
+                LastAccess = DateTime.UtcNow
+            });
+            entry.LastAccess = DateTime.UtcNow;
+            return (Action<TSource, TDestination, ISet<string>>)entry.Func;
+        }
+
+        private static void EvictOld()
+        {
+            var now = DateTime.UtcNow;
+            foreach (var kv in _mappingCache.ToArray())
+                if (now - kv.Value.LastAccess > MappingCacheTTL)
+                    _mappingCache.TryRemove(kv.Key, out _);
+        }
+
+        private static Action<TSource, TDestination, ISet<string>> BuildMap<TSource, TDestination>()
+        {
+            var srcProps = GetTypeProperties(typeof(TSource))
+                              .ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+            var dstProps = GetTypeProperties(typeof(TDestination));
+            var alwaysIgnore = GetTypeIgnored(typeof(TDestination));
+
+            var maps = new List<PropertyMapping<TSource, TDestination>>();
+
+            foreach (var dst in dstProps)
+            {
+                if (alwaysIgnore.Contains(dst.Name))
                     continue;
+
+                // Determine source property
+                PropertyInfo src = null;
+                var attrDst = dst.GetCustomAttribute<SimpleMapperMappingAttribute>(true);
+                if (attrDst != null)
+                {
+                    // Attribute on destination: use specified source name
+                    srcProps.TryGetValue(attrDst.SourcePropertyName, out src);
+                }
+                else if (!srcProps.TryGetValue(dst.Name, out src))
+                {
+                    // No match by name: look for attribute on source property mapping to this dst
+                    src = srcProps.Values.FirstOrDefault(sp =>
+                        sp.GetCustomAttribute<SimpleMapperMappingAttribute>(true)?.SourcePropertyName
+                        .Equals(dst.Name, StringComparison.OrdinalIgnoreCase) == true);
                 }
 
-                if (ignoredProperties != null && ignoredProperties.Contains(destinationProperty.Name))
-                {
+                if (src == null || !dst.CanWrite)
                     continue;
-                }
 
-                var customMappingAttribute = destinationProperty.GetCustomAttribute<SimpleMapperMappingAttribute>();
-                string sourcePropertyName = customMappingAttribute?.SourcePropertyName ?? destinationProperty.Name;
+                var conv = CreateConverter(src.PropertyType, dst.PropertyType);
+                if (conv == null)
+                    continue;
 
-                var sourceProperty = sourceProperties.FirstOrDefault(sp => sp.Name == sourcePropertyName);
+                // compile getter
+                var parSrc = Expression.Parameter(typeof(TSource), "s");
+                var getter = Expression.Lambda<Func<TSource, object>>(
+                    Expression.Convert(Expression.Property(parSrc, src), typeof(object)), parSrc).Compile();
 
-                if (sourceProperty != null && destinationProperty.CanWrite)
-                {
-                    try
-                    {
-                        if (destinationProperty.PropertyType == sourceProperty.PropertyType)
-                        {
-                            var sourceValue = Expression.Property(sourceParameter, sourceProperty);
-                            var binding = Expression.Bind(destinationProperty, sourceValue);
-                            memberBindings.Add(binding);
-                        }
-                        else if (destinationProperty.PropertyType.IsEnum && sourceProperty.PropertyType == typeof(string))
-                        {
-                            var sourceValue = Expression.Property(sourceParameter, sourceProperty);
-                            var parseMethod = typeof(Enum).GetMethod("Parse", new[] { typeof(Type), typeof(string), typeof(bool) });
-                            var enumParseCall = Expression.Call(parseMethod, Expression.Constant(destinationProperty.PropertyType), sourceValue, Expression.Constant(true));
-                            var binding = Expression.Bind(destinationProperty, Expression.Convert(enumParseCall, destinationProperty.PropertyType));
-                            memberBindings.Add(binding);
-                        }
-                        else if (destinationProperty.PropertyType == typeof(string) && sourceProperty.PropertyType.IsEnum)
-                        {
-                            var sourceValue = Expression.Property(sourceParameter, sourceProperty);
-                            var toStringCall = Expression.Call(sourceValue, "ToString", null);
-                            var binding = Expression.Bind(destinationProperty, toStringCall);
-                            memberBindings.Add(binding);
-                        }
-                        else
-                        {
-                            // More complex type conversion handling
-                            var sourceValue = Expression.Property(sourceParameter, sourceProperty);
-                            var convertMethod = typeof(Convert).GetMethod("ChangeType", new[] { typeof(object), typeof(Type) });
-                            var convertedValue = Expression.Call(convertMethod, Expression.Convert(sourceValue, typeof(object)), Expression.Constant(destinationProperty.PropertyType));
-                            var binding = Expression.Bind(destinationProperty, Expression.Convert(convertedValue, destinationProperty.PropertyType));
-                            memberBindings.Add(binding);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new InvalidOperationException($"Error mapping property {sourceProperty.Name} to {destinationProperty.Name}: {ex.Message}", ex);
-                    }
-                }
+                // compile setter
+                var parDst = Expression.Parameter(typeof(TDestination), "d");
+                var parVal = Expression.Parameter(typeof(object), "v");
+                var setterCall = Expression.Call(
+                    parDst,
+                    dst.GetSetMethod(true),
+                    Expression.Convert(parVal, dst.PropertyType));
+                var setter = Expression.Lambda<Action<TDestination, object>>(setterCall, parDst, parVal).Compile();
+
+                maps.Add(new PropertyMapping<TSource, TDestination>(dst.Name, getter, setter, conv));
             }
 
-            var initializer = Expression.MemberInit(destinationVariable, memberBindings);
-            var lambda = Expression.Lambda<Func<TSource, TDestination>>(initializer, sourceParameter);
-            return lambda.Compile();
+            return (s, d, ignored) =>
+            {
+                foreach (var m in maps)
+                {
+                    if (ignored != null && ignored.Contains(m.Name))
+                        continue;
+
+                    var raw = m.Getter(s);
+                    if (raw == null && IsNonNullable(m.DestType))
+                        continue;
+
+                    var converted = m.Converter(raw);
+                    m.Setter(d, converted);
+                }
+            };
+        }
+
+        private static PropertyInfo[] GetTypeProperties(Type t)
+            => _propertyCache.GetOrAdd(t, _ => t.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+
+        private static HashSet<string> GetTypeIgnored(Type t)
+            => _typeIgnoredCache.GetOrAdd(t, _ => new HashSet<string>(
+                   GetTypeProperties(t)
+                   .Where(p => p.GetCustomAttribute<SimpleMapperIgnoreAttribute>(true) != null)
+                   .Select(p => p.Name)));
+
+        private static Func<object, object> CreateConverter(Type src, Type dst)
+        {
+            if (src == dst) return v => v;
+            var nullable = Nullable.GetUnderlyingType(dst);
+            if (nullable != null)
+            {
+                var inner = CreateConverter(src, nullable);
+                return v => v == null ? null : inner(v);
+            }
+            if (dst == typeof(string) && src.IsEnum) return v => v?.ToString();
+            if (dst.IsEnum && src == typeof(string)) return v => v == null ? Activator.CreateInstance(dst) : Enum.Parse(dst, (string)v, true);
+            if (dst.IsEnum && IsNumeric(src)) return v => v == null ? Activator.CreateInstance(dst) : Enum.ToObject(dst, v);
+            if ((IsNumeric(src) || src == typeof(string)) && (IsNumeric(dst) || dst == typeof(string)))
+                return v =>
+                {
+                    try { return v == null ? GetDefault(dst) : Convert.ChangeType(v, dst); }
+                    catch { return GetDefault(dst); }
+                };
+            var change = typeof(Convert).GetMethod("ChangeType", new[] { typeof(object), typeof(Type) });
+            if (change != null)
+                return v =>
+                {
+                    try { return v == null ? GetDefault(dst) : Convert.ChangeType(v, dst); }
+                    catch { return GetDefault(dst); }
+                };
+            return null;
+        }
+
+        private static bool IsNumeric(Type t)
+        {
+            switch (Type.GetTypeCode(t))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                case TypeCode.Single:
+                case TypeCode.Double:
+                case TypeCode.Decimal:
+                    return true;
+                default: return false;
+            }
+        }
+
+        private static bool IsNonNullable(Type t)
+            => t.IsValueType && Nullable.GetUnderlyingType(t) == null;
+
+        private static object GetDefault(Type t)
+            => t.IsValueType ? Activator.CreateInstance(t) : null;
+
+        public static void ClearCaches()
+        {
+            _mappingCache.Clear();
+            _propertyCache.Clear();
+            _typeIgnoredCache.Clear();
+        }
+
+        private class PropertyMapping<TSrc, TDst>
+        {
+            public string Name { get; }
+            public Func<TSrc, object> Getter { get; }
+            public Action<TDst, object> Setter { get; }
+            public Func<object, object> Converter { get; }
+            public Type DestType { get; }
+            public PropertyMapping(string name, Func<TSrc, object> getter, Action<TDst, object> setter, Func<object, object> converter)
+            {
+                Name = name;
+                Getter = getter;
+                Setter = setter;
+                Converter = converter;
+                DestType = setter.Method.GetParameters()[1].ParameterType;
+            }
         }
     }
 }

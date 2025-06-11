@@ -12,6 +12,9 @@ namespace SimpleMapperUtility
 
         public SimpleMapperMappingAttribute(string sourcePropertyName)
         {
+            if (string.IsNullOrWhiteSpace(sourcePropertyName))
+                throw new ArgumentException("Source property name cannot be null or whitespace", nameof(sourcePropertyName));
+
             SourcePropertyName = sourcePropertyName;
         }
     }
