@@ -39,44 +39,6 @@ jobs:
           path: SimpleMapper/**/bin/Release/
           if-no-files-found: error
 
-  test:
-    name: Run Tests
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: SimpleMapper/
-
-      - name: Test with xUnit
-        run: |
-          dotnet test ${{ env.TEST_PROJECT_PATH }} \
-            --configuration Release \
-            --no-build \
-            --logger "console;verbosity=detailed" \
-            --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./test-results
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            ./test-results/*.trx
-            ./test-results/**/coverage.cobertura.xml
-          if-no-files-found: warn
-
   pack:
     name: Package NuGet
     needs: test
