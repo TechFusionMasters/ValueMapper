@@ -22,13 +22,9 @@
     <!-- 5. Include symbol package -->
     <IncludeSymbols>true</IncludeSymbols>
     <!-- 6. README and License -->
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <!-- Include README and License in the package -->
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
 
 </Project>
