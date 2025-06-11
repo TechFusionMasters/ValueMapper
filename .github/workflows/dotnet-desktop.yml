@@ -11,11 +11,10 @@ permissions:
   packages: write
 
 env:
-  SOLUTION_PATH: SimpleMapper.sln
-  PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper.csproj
+  SOLUTION_PATH: SimpleMapper/SimpleMapper.sln
+  PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper/SimpleMapper/SimpleMapper.csproj
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
-  WORKING_DIRECTORY: .
 
 jobs:
   build-and-pack:
@@ -32,12 +31,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        run: dotnet restore
+        run: dotnet restore ${{ env.SOLUTION_PATH }}
 
       - name: Build
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
 
       - name: Create output directory
         run: mkdir -p ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
