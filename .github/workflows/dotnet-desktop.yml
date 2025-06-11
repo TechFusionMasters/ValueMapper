@@ -1,82 +1,44 @@
-name: .NET Build, Test and Publish
+name: Publish NuGet Package
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
-# Add permissions configuration
 permissions:
-  contents: write
-  packages: write
-
-env:
-  SOLUTION_PATH: SimpleMapper/SimpleMapper.sln
-  PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper/SimpleMapper.csproj
-  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
-  NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
+  contents: read # to check out code
+  packages: write # to push the NuGet package
 
 jobs:
-  build-and-pack:
-    name: Build and Package
+  publish:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Required for tag history
 
-      - name: Setup .NET
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: "8.0.x"
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.SOLUTION_PATH }}
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release
-
-      - name: Create output directory
-        run: mkdir -p ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+        run: dotnet build --configuration Release --no-restore
 
       - name: Pack
-        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+        run: dotnet pack SimpleMapper/SimpleMapper/SimpleMapper.csproj \
+          --configuration Release \
+          --no-build \
+          --output ./artifacts
 
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuget-package
-          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg
-          if-no-files-found: error
-
-  publish:
-    name: Publish to NuGet
-    needs: build-and-pack
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Run on push to main branch
-    steps:
-      - name: Download package artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-package
-          path: packages
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-
-      - name: List packages
-        run: ls -la packages/
-
-      - name: Push to NuGet.org
+      - name: Publish to NuGet.org
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          for package in packages/*.nupkg; do
-            dotnet nuget push "$package" \
-              --api-key $NUGET_API_KEY \
-              --source ${{ env.NUGET_SOURCE_URL }} \
-              --skip-duplicate
-          done
+          dotnet nuget push "artifacts/*.nupkg" \
+            --api-key $NUGET_API_KEY \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
