@@ -59,15 +59,48 @@ var entity = SimpleMapper.Map<UserDto, UserEntity>(dto);
 
 ### Mapping Collections
 
+SimpleMapper provides two ways to work with collections:
+
+1. Mapping Lists of Objects:
+
 ```csharp
+// This is supported - mapping a list of simple objects
 var dtoList = new List<UserDto>
 {
     new UserDto { Name = "John Doe", Age = 30 },
     new UserDto { Name = "Jane Doe", Age = 28 }
 };
 
-// Map a list of objects
+// Maps each object in the list
 var entityList = SimpleMapper.MapList<UserDto, UserEntity>(dtoList);
+```
+
+2. Objects with Collection Properties:
+
+```csharp
+// This requires manual mapping
+public class UserDto
+{
+    public string Name { get; set; }
+    public List<string> Roles { get; set; }  // Collection property
+}
+
+public class UserEntity
+{
+    public string Name { get; set; }
+    public List<string> Roles { get; set; }  // Collection property
+}
+
+// You need to manually map collection properties
+var dto = new UserDto
+{
+    Name = "John",
+    Roles = new List<string> { "Admin", "User" }
+};
+
+var entity = SimpleMapper.Map<UserDto, UserEntity>(dto);
+// entity.Name is mapped automatically
+// entity.Roles needs to be mapped manually
 ```
 
 ### Custom Property Mapping
@@ -194,7 +227,7 @@ For collections, SimpleMapper provides a simple `MapList` method that processes 
 ## Limitations
 
 - Does not support deep object mapping (nested objects must be mapped separately)
-- Collection properties must be mapped manually
+- Collection properties within objects must be mapped manually (though `MapList` is available for mapping lists of objects)
 - Only public properties are mapped
 - Properties must have both getter and setter to be mapped
 - Basic caching implementation
