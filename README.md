@@ -112,13 +112,53 @@ var entity = SimpleMapper.Map<UserDto, UserEntity>(dto, ignoredProperties);
 
 ### Type Conversion Support
 
-SimpleMapper handles basic conversions between compatible types:
+SimpleMapper handles various type conversions:
 
 - Numeric type conversions (int, long, double, decimal, etc.)
 - String to/from numeric types
-- String to/from enum types
+- String to/from enum types (with case-insensitive parsing)
 - Enum to/from numeric types
 - Nullable type handling
+- Custom type conversions through the Convert.ChangeType method
+
+Example of enum conversion:
+
+```csharp
+public enum UserType { Regular, Admin }
+
+public class UserDto
+{
+    public string Type { get; set; }  // "Regular" or "Admin"
+}
+
+public class UserEntity
+{
+    public UserType Type { get; set; }  // Enum value
+}
+
+// String to enum conversion happens automatically
+var dto = new UserDto { Type = "Admin" };
+var entity = SimpleMapper.Map<UserDto, UserEntity>(dto);
+// entity.Type will be UserType.Admin
+```
+
+Example of numeric conversion:
+
+```csharp
+public class Source
+{
+    public int Value { get; set; }
+}
+
+public class Destination
+{
+    public double Value { get; set; }
+}
+
+var source = new Source { Value = 42 };
+var dest = SimpleMapper.Map<Source, Destination>(source);
+// dest.Value will be 42.0
+```
 
 ### Cache Management
 
@@ -157,7 +197,6 @@ For collections, SimpleMapper provides a simple `MapList` method that processes 
 - Collection properties must be mapped manually
 - Only public properties are mapped
 - Properties must have both getter and setter to be mapped
-- Custom type conversions are not supported
 - Basic caching implementation
 - Not optimized for high-performance scenarios
 
