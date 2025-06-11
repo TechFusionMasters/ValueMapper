@@ -60,19 +60,23 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nuget-package
-          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+          path: packages
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
+      - name: List packages
+        run: ls -la packages/
+
       - name: Push to NuGet.org
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push \
-            "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" \
-            --api-key $NUGET_API_KEY \
-            --source ${{ env.NUGET_SOURCE_URL }} \
-            --skip-duplicate
+          for package in packages/*.nupkg; do
+            dotnet nuget push "$package" \
+              --api-key $NUGET_API_KEY \
+              --source ${{ env.NUGET_SOURCE_URL }} \
+              --skip-duplicate
+          done
