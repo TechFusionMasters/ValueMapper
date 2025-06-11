@@ -72,6 +72,5 @@ jobs:
 
       - name: Push to NuGet.org
         run: |
-          dotnet new nugetconfig --force
-          dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source nuget.org --skip-duplicate
+          # Push directly to NuGet.org using the API key
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
