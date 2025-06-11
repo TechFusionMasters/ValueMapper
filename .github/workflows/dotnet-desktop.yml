@@ -3,7 +3,6 @@ name: .NET Build, Test and Publish
 on:
   push:
     branches: ["main"]
-    tags: ["v*"] # only trigger the publish steps on tags
   pull_request:
     branches: ["main"]
 
@@ -48,7 +47,7 @@ jobs:
     name: Publish to NuGet
     needs: build-and-pack
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') # only on tag pushes
+    if: github.ref == 'refs/heads/main' # Run on push to main branch
     steps:
       - name: Download package artifacts
         uses: actions/download-artifact@v4
