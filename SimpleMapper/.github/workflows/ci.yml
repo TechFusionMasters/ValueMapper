@@ -1,0 +1,28 @@
+name: Publish NuGet
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+env:
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore & Build
+        run: dotnet build --configuration Release
+      - name: Pack
+        run: dotnet pack SimpleMapper/SimpleMapper.csproj -c Release --no-build
+      - name: Push to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push SimpleMapper/bin/Release/SimpleMapper.*.nupkg \
+          --api-key $NUGET_API_KEY \
+          --source https://api.nuget.org/v3/index.json

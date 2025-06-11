@@ -1,8 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+
+    <!--  ──────────────────────── NuGet packaging settings ──────────────────────── -->
+    <!-- 1. Generate the .nupkg when you build -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- 2. Unique package identity & version -->
+    <PackageId>SimpleMapper</PackageId>
+    <Version>1.0.0</Version>
+    <!-- 3. Authoring & description -->
+    <Authors>YourName</Authors>
+    <Company>YourCompany</Company>
+    <Description>A lightweight object-to-object mapper for .NET</Description>
+    <PackageTags>mapping;object;reflection;cache</PackageTags>
+    <!-- 4. (Optional) link back to your repo -->
+    <RepositoryUrl>https://github.com/TechFusionMasters/SimpleMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- 5. Include symbol package if you like -->
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
 </Project>
