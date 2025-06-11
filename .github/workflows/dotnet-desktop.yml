@@ -11,11 +11,11 @@ permissions:
   packages: write
 
 env:
-  SOLUTION_PATH: SimpleMapper/SimpleMapper.sln
-  PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper/SimpleMapper.csproj
+  SOLUTION_PATH: SimpleMapper.sln
+  PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper.csproj
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
-  WORKING_DIRECTORY: SimpleMapper
+  WORKING_DIRECTORY: .
 
 jobs:
   build-and-pack:
@@ -73,8 +73,8 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push \
-            "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" \
-            --api-key $NUGET_API_KEY \
-            --source ${{ env.NUGET_SOURCE_URL }} \
-            --skip-duplicate
+          # Add the NuGet source with explicit credentials
+          dotnet nuget add source ${{ env.NUGET_SOURCE_URL }} --name nuget.org --username username --password $NUGET_API_KEY --store-password-in-clear-text
+
+          # Push the package with explicit API key
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --api-key $NUGET_API_KEY --source nuget.org
