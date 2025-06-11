@@ -9,7 +9,7 @@ SimpleMapper is a straightforward, easy-to-use object-to-object mapping utility 
 - 🎯 Custom property mapping using attributes
 - 🚫 Property exclusion support
 - 📝 Support for basic type conversions including enums
-- 🔄 Collection mapping support
+- 🔄 List mapping with automatic parallelization
 
 ## When to Use SimpleMapper
 
@@ -57,11 +57,9 @@ var dto = new UserDto { Name = "John Doe", Age = 30, Email = "john@example.com" 
 var entity = SimpleMapper.Map<UserDto, UserEntity>(dto);
 ```
 
-### Mapping Collections
+### Mapping Lists of Objects
 
-SimpleMapper provides support for collections in two ways:
-
-1. Mapping Lists of Objects using `MapList`:
+SimpleMapper provides efficient list mapping using `MapList`:
 
 ```csharp
 var dtoList = new List<UserDto>
@@ -70,40 +68,18 @@ var dtoList = new List<UserDto>
     new UserDto { Name = "Jane Doe", Age = 28 }
 };
 
-// Maps each object in the list, with automatic parallelization for large lists
+// Maps each object in the list
 var entityList = SimpleMapper.MapList<UserDto, UserEntity>(dtoList);
 ```
 
-2. Mapping Collection Properties:
-
-```csharp
-public class UserDto
-{
-    public string Name { get; set; }
-    public List<string> Roles { get; set; }
-}
-
-public class UserEntity
-{
-    public string Name { get; set; }
-    public List<string> Roles { get; set; }
-}
-
-// Both Name and Roles will be mapped automatically
-var dto = new UserDto
-{
-    Name = "John",
-    Roles = new List<string> { "Admin", "User" }
-};
-
-var entity = SimpleMapper.Map<UserDto, UserEntity>(dto);
-```
+The `MapList` method automatically uses parallelization for lists with more than 100 items, with a maximum degree of parallelism limited to 8 or the number of processor cores, whichever is smaller.
 
 ### Custom Property Mapping
 
 Use the `SimpleMapperMappingAttribute` to map properties with different names:
 
 ```csharp
+// Destination property specifying the source property name
 public class Source
 {
     public string FullName { get; set; }
@@ -114,7 +90,21 @@ public class Destination
     [SimpleMapperMapping("FullName")]
     public string Name { get; set; }
 }
+
+// OR source property specifying the destination property name
+public class Source
+{
+    [SimpleMapperMapping("Name")]
+    public string FullName { get; set; }
+}
+
+public class Destination
+{
+    public string Name { get; set; }
+}
 ```
+
+The attribute can be applied to either the source or destination property.
 
 ### Ignoring Properties
 
@@ -149,6 +139,8 @@ SimpleMapper handles various type conversions:
 - Enum to/from numeric types
 - Nullable type handling
 - Custom type conversions through the Convert.ChangeType method
+
+If a conversion fails, SimpleMapper will use the default value for the destination type rather than throwing an exception.
 
 Example of enum conversion:
 
@@ -191,7 +183,11 @@ var dest = SimpleMapper.Map<Source, Destination>(source);
 
 ### Cache Management
 
-SimpleMapper maintains a simple cache of mapping functions. If needed, you can manually clear the cache:
+SimpleMapper maintains a cache of mapping functions to improve performance:
+
+- Mapping functions are cached for 1 hour after last access
+- Old entries are automatically evicted
+- The cache can be manually cleared if needed:
 
 ```csharp
 SimpleMapper.ClearCaches();
@@ -209,9 +205,11 @@ SimpleMapper supports basic type conversions:
 - Enum to/from numeric types
 - Handling of nullable value types
 
-### Collection Mapping
+### Null Value Handling
 
-For collections, SimpleMapper provides a simple `MapList` method that processes items sequentially or in parallel based on collection size.
+- Null values are properly handled during mapping
+- If the destination property is a non-nullable value type, null source values are skipped
+- For nullable destination types, null source values are mapped as null
 
 ## Best Practices
 
@@ -222,11 +220,12 @@ For collections, SimpleMapper provides a simple `MapList` method that processes 
 
 ## Limitations
 
-- Does not support deep object mapping (nested objects must be mapped separately)
+- Does not support deep object mapping (nested complex objects must be mapped separately)
+- Does not support mapping collection properties directly (e.g., mapping a List<string> to another List<string>)
 - Only public properties are mapped
 - Properties must have both getter and setter to be mapped
-- Basic caching implementation
-- Not optimized for high-performance scenarios
+- Basic caching implementation with 1-hour TTL
+- Not optimized for extremely high-performance scenarios
 
 ## Contributing
 
