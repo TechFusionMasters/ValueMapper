@@ -77,5 +77,5 @@ jobs:
           dotnet nuget push \
             "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" \
             --api-key $NUGET_API_KEY \
-            --source ${{ env.NUGET_SOURCE_URL }} \
+            --source https://api.nuget.org/v3/index.json  \
             --skip-duplicate
