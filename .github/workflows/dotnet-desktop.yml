@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: ["main"]
 
+# Add permissions configuration
+permissions:
+  contents: write
+  packages: write
+
 env:
   SOLUTION_PATH: SimpleMapper/SimpleMapper.sln
   PACKAGE_PROJECT_PATH: SimpleMapper/SimpleMapper/SimpleMapper.csproj
@@ -18,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for tag history
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
