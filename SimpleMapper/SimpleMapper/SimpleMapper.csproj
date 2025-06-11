@@ -9,7 +9,7 @@
     <!-- 1. Generate the .nupkg when you build -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <!-- 2. Unique package identity & version -->
-    <PackageId>SimpleMapper</PackageId>
+    <PackageId>ValueMapper</PackageId>
     <Version>1.0.0</Version>
     <!-- 3. Authoring & description -->
     <Authors>TechFusionMasters</Authors>
