@@ -41,7 +41,7 @@ name: .NET Build, Test and Publish
 on:
   push:
     branches: ["main"]
-    tags: ["v*"]
+    tags: ["v*"] # only trigger the publish steps on tags
   pull_request:
     branches: ["main"]
 
@@ -53,9 +53,8 @@ env:
   NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
 
 jobs:
-  build-test-publish:
+  build-test-pack:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -92,14 +91,30 @@ jobs:
           if-no-files-found: warn
 
       - name: Pack
-        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+        run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} \
+          --configuration Release \
+          --no-build \
+          --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.2.0
+  publish-nuget:
+    needs: build-test-pack
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') # only on tag pushes
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Publish to NuGet
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Push to NuGet.org
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+          # this secret must be defined in your repo’s Settings → Secrets → Actions
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget add source --name nuget.org https://api.nuget.org/v3/index.json
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --source nuget.org --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+          dotnet nuget push \
+            "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" \
+            --api-key $NUGET_API_KEY \
+            --source ${{ env.NUGET_SOURCE_URL }} \
+            --skip-duplicate
