@@ -82,7 +82,7 @@ jobs:
             --results-directory ./test-results
 
       - name: Upload test results
-        if: always() # Upload test results even if tests fail
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
@@ -94,5 +94,12 @@ jobs:
       - name: Pack
         run: dotnet pack ${{ env.PACKAGE_PROJECT_PATH }} --configuration Release --no-build --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.2.0
+
       - name: Publish to NuGet
-        run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg --source ${{ env.NUGET_SOURCE_URL }} --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget add source --name nuget.org https://api.nuget.org/v3/index.json
+          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" --source nuget.org --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
