@@ -5,3 +5,6 @@
 /SimpleMapper/UnitTestXUnitNet6/obj
 /SimpleMapper/.vs
 /SimpleMapper/packages
+/SimpleMapper/Benchmark/bin
+/SimpleMapper/Benchmark/obj
+/SimpleMapper/Example/bin

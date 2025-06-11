@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMapper", "SimpleMapper\SimpleMapper.csproj", "{44D188C0-E104-4EDE-9BA6-209F7DED2BC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMapper", "SimpleMapper\SimpleMapper.csproj", "{44D188C0-E104-4EDE-9BA6-209F7DED2BC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{0DC62E70-B991-4775-A0E2-9F00CCFFAA5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{36888CCF-41A0-4EE3-A699-1D5DBADDE58A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example", "Example\Example.csproj", "{36888CCF-41A0-4EE3-A699-1D5DBADDE58A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{5ECC2DE1-9F56-44B3-8F3E-029AEAA0D455}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestXUnitNet6", "UnitTestXUnitNet6\UnitTestXUnitNet6.csproj", "{2D594451-CCA0-432E-B3B5-4560C023E709}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTestXUnitNet6", "UnitTestXUnitNet6\UnitTestXUnitNet6.csproj", "{2D594451-CCA0-432E-B3B5-4560C023E709}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{AA576C57-D5D0-4A36-A8E1-2CA7AB6498A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{2D594451-CCA0-432E-B3B5-4560C023E709}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D594451-CCA0-432E-B3B5-4560C023E709}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D594451-CCA0-432E-B3B5-4560C023E709}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA576C57-D5D0-4A36-A8E1-2CA7AB6498A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA576C57-D5D0-4A36-A8E1-2CA7AB6498A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA576C57-D5D0-4A36-A8E1-2CA7AB6498A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA576C57-D5D0-4A36-A8E1-2CA7AB6498A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
