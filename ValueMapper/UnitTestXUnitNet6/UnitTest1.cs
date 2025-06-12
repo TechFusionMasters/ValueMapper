@@ -1,4 +1,6 @@
 using ValueMapperUtility;
+using System;
+using System.Collections.Generic;
 
 namespace UnitTestXUnitNet6
 {
@@ -296,6 +298,84 @@ namespace UnitTestXUnitNet6
             // Assert
             Assert.Equal(source1.Name, dest1.Name);
             Assert.Equal(source2.Name, dest2.Name);
+        }
+
+        [Fact]
+        public void Map_ListStringProperties_ShouldMapCorrectly()
+        {
+            // Arrange
+            var source = new UserWithRoles
+            {
+                Name = "John",
+                Roles = new List<string> { "Admin", "User" }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<UserWithRoles, UserWithRolesDestination>(source);
+
+            // Assert
+            Assert.Equal(source.Name, destination.Name);
+            Assert.Equal(source.Roles.Count, destination.Roles.Count);
+            Assert.Equal(source.Roles[0], destination.Roles[0]);
+            Assert.Equal(source.Roles[1], destination.Roles[1]);
+        }
+
+        [Fact]
+        public void Map_DeepObjectMapping_ShouldMapCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "key1", "value1" },
+                        { "key2", "value2" }
+                    },
+                    Tags = new List<string> { "tag1", "tag2" },
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+
+            // Assert
+            // Root level assertions
+            Assert.Equal(source.Id, destination.Id);
+            Assert.Equal(source.Name, destination.Name);
+            
+            // Child level assertions
+            Assert.NotNull(destination.Child);
+            Assert.Equal(source.Child.ChildId, destination.Child.ChildId);
+            Assert.Equal(source.Child.Description, destination.Child.Description);
+            
+            // Child collections assertions
+            Assert.NotNull(destination.Child.Metadata);
+            Assert.Equal(source.Child.Metadata.Count, destination.Child.Metadata.Count);
+            Assert.Equal(source.Child.Metadata["key1"], destination.Child.Metadata["key1"]);
+            Assert.Equal(source.Child.Metadata["key2"], destination.Child.Metadata["key2"]);
+            
+            Assert.NotNull(destination.Child.Tags);
+            Assert.Equal(source.Child.Tags.Count, destination.Child.Tags.Count);
+            Assert.Equal(source.Child.Tags[0], destination.Child.Tags[0]);
+            Assert.Equal(source.Child.Tags[1], destination.Child.Tags[1]);
+            
+            // GrandChild level assertions
+            Assert.NotNull(destination.Child.GrandChild);
+            Assert.Equal(source.Child.GrandChild.GrandChildId, destination.Child.GrandChild.GrandChildId);
+            Assert.Equal(source.Child.GrandChild.IsActive, destination.Child.GrandChild.IsActive);
+            Assert.Equal(source.Child.GrandChild.CreatedDate, destination.Child.GrandChild.CreatedDate);
         }
     }
 }
