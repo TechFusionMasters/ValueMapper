@@ -51,10 +51,10 @@ namespace Benchmark
             // Run each benchmark manually with a stopwatch
             RunQuickBenchmark("Simple property mapping (1 object)", () => benchmark.MapSimpleObject());
             RunQuickBenchmark("Complex property mapping (1 object)", () => benchmark.MapComplexObject());
-            RunQuickBenchmark("Collection mapping (100 objects)", () => benchmark.MapCollection(100));
             RunQuickBenchmark("Collection mapping (1,000 objects)", () => benchmark.MapCollection(1000));
             RunQuickBenchmark("Collection mapping (10,000 objects)", () => benchmark.MapCollection(10000));
-            RunQuickBenchmark("Collection mapping parallel (10,000 objects)", () => benchmark.MapCollectionParallel(10000));
+            RunQuickBenchmark("Collection mapping (100,000 objects)", () => benchmark.MapCollection(100000));
+            RunQuickBenchmark("Collection mapping parallel (100,000 objects)", () => benchmark.MapCollectionParallel(100000));
             RunQuickBenchmark("Type conversion benchmark", () => benchmark.MapWithTypeConversions());
             RunQuickBenchmark("Custom property mapping", () => benchmark.MapWithCustomPropertyNames());
 
@@ -93,7 +93,7 @@ namespace Benchmark
             RunQuickBenchmark("Mapster", () => benchmark.Mapster());
             RunQuickBenchmark("ManuallyImplementedMapper", () => benchmark.ManuallyImplementedMapper());
 
-            Console.WriteLine("\nCollection mapping (1000 items):");
+            Console.WriteLine("\nCollection mapping (100000 items):");
             Console.WriteLine("===============================");
             RunQuickBenchmark("ValueMapperCollection", () => benchmark.ValueMapperCollection());
             RunQuickBenchmark("AutoMapperCollection", () => benchmark.AutoMapperCollection());

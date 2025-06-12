@@ -33,7 +33,7 @@ namespace Benchmark
                 Flags = new[] { "Flag1", "Flag2", "Flag3" }
             };
 
-            _testCollection = Enumerable.Range(1, 1000)
+            _testCollection = Enumerable.Range(1, 100000)
                 .Select(i => new TestSource
                 {
                     Id = i,
