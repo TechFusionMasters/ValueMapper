@@ -11,8 +11,8 @@ permissions:
   packages: write
 
 env:
-  SOLUTION_FILE: SimpleMapper/SimpleMapper.sln
-  PROJECT_FILE: SimpleMapper/SimpleMapper/SimpleMapper.csproj
+  SOLUTION_FILE: ValueMapper/ValueMapper.sln
+  PROJECT_FILE: ValueMapper/ValueMapper/ValueMapper.csproj
   PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
       - name: List directory for debugging
         run: |
           pwd
-          ls -R SimpleMapper/
+          ls -R ValueMapper/
 
       - name: Restore dependencies
         run: dotnet restore "${{ env.SOLUTION_FILE }}"

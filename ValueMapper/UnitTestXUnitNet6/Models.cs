@@ -1,4 +1,5 @@
-﻿using SimpleMapperUtility;
+﻿using ValueMapperUtility;
+using ValueMapperUtility.Attribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,14 +22,17 @@ namespace UnitTestXUnitNet6
         
         public double DoubleValue { get; set; }
         public string StringNumber { get; set; }
+        public string StringValue { get; set; }
     }
     public class NumericDestination
     {
-        [SimpleMapperMapping("IntValue")]
+        [ValueMapperMapping("IntValue")]
         public long LongValue { get; set; }
-        [SimpleMapperMapping("DoubleValue")]
+
+        [ValueMapperMapping("DoubleValue")]
         public float FloatValue { get; set; }
-        [SimpleMapperMapping("StringNumber")]
+
+        [ValueMapperMapping("StringNumber")]
         public int IntFromString { get; set; }
     }
 
@@ -47,12 +51,12 @@ namespace UnitTestXUnitNet6
         public int IntValue { get; set; }
     }
 
-    // Custom class with SimpleMapperIgnoreAttribute
-    public class SourceWithIgnore
+    // Custom class with ValueMapperIgnoreAttribute
+    public class SourceWithIgnoredProperties
     {
         public string Name { get; set; }
 
-        [SimpleMapperIgnore]
+        [ValueMapperIgnore]
         public string IgnoredProperty { get; set; }
     }
 

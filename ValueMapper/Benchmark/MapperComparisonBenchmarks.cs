@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using SimpleMapperUtility;
+using ValueMapperUtility;
 using AutoMapper;
 using Mapster;
 
@@ -56,8 +56,8 @@ namespace Benchmark
             // Configure Mapperly-like mapper manually
             _mapperlyMapper = new TestMapperImpl();
 
-            // Clear SimpleMapper cache
-            SimpleMapperUtility.SimpleMapper.ClearCaches();
+            // Clear ValueMapper cache
+            ValueMapperUtility.ValueMapper.ClearCaches();
         }
 
         [Benchmark(Baseline = true)]
@@ -76,9 +76,9 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public TestDestination SimpleMapper()
+        public TestDestination ValueMapper()
         {
-            return SimpleMapperUtility.SimpleMapper.Map<TestSource, TestDestination>(_testObject);
+            return ValueMapperUtility.ValueMapper.Map<TestSource, TestDestination>(_testObject);
         }
 
         [Benchmark]
@@ -100,9 +100,9 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public List<TestDestination> SimpleMapperCollection()
+        public List<TestDestination> ValueMapperCollection()
         {
-            return SimpleMapperUtility.SimpleMapper.MapList<TestSource, TestDestination>(_testCollection);
+            return ValueMapperUtility.ValueMapper.MapList<TestSource, TestDestination>(_testCollection);
         }
 
         [Benchmark]
@@ -125,10 +125,10 @@ namespace Benchmark
 
         // Warmup vs. cached performance
         [Benchmark]
-        public void SimpleMapperWarmup()
+        public void ValueMapperWarmup()
         {
-            SimpleMapperUtility.SimpleMapper.ClearCaches();
-            var result = SimpleMapperUtility.SimpleMapper.Map<TestSource, TestDestination>(_testObject);
+            ValueMapperUtility.ValueMapper.ClearCaches();
+            var result = ValueMapperUtility.ValueMapper.Map<TestSource, TestDestination>(_testObject);
         }
 
         [Benchmark]

@@ -1,8 +1,8 @@
-using SimpleMapperUtility;
+using ValueMapperUtility;
 
 namespace UnitTestXUnitNet6
 {
-    public class SimpleMapperTests
+    public class ValueMapperTests
     {
         [Fact]
         public void Map_BasicProperties_ShouldMapCorrectly()
@@ -16,7 +16,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<Source, Destination>(source);
+            var destination = ValueMapper.Map<Source, Destination>(source);
 
             // Assert
             Assert.Equal(source.Name, destination.Name);
@@ -31,7 +31,7 @@ namespace UnitTestXUnitNet6
             Source source = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => SimpleMapper.Map<Source, Destination>(source));
+            Assert.Throws<ArgumentNullException>(() => ValueMapper.Map<Source, Destination>(source));
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace UnitTestXUnitNet6
             var ignoredProperties = new HashSet<string> { "Age" };
 
             // Act
-            var destination = SimpleMapper.Map<Source, Destination>(source, ignoredProperties);
+            var destination = ValueMapper.Map<Source, Destination>(source, ignoredProperties);
 
             // Assert
             Assert.Equal(source.Name, destination.Name);
@@ -66,7 +66,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<Source, Destination>(source);
+            var destination = ValueMapper.Map<Source, Destination>(source);
 
             // Assert
             Assert.Equal(SampleEnum.Value1, destination.EnumValue);
@@ -82,7 +82,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => SimpleMapper.Map<Source, Destination>(source));
+            Assert.Throws<ArgumentException>(() => ValueMapper.Map<Source, Destination>(source));
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<Source, Destination>(source);
+            var destination = ValueMapper.Map<Source, Destination>(source);
 
             // Assert
             Assert.Equal(SampleEnum.Value1, destination.EnumValue);
@@ -111,7 +111,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<Source, Destination>(source);
+            var destination = ValueMapper.Map<Source, Destination>(source);
 
             // Assert
             Assert.Equal(source.CustomMappedProperty, destination.CustomName);
@@ -129,7 +129,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destinationList = SimpleMapper.MapList<Source, Destination>(sourceList);
+            var destinationList = ValueMapper.MapList<Source, Destination>(sourceList);
 
             // Assert
             Assert.Equal(sourceList.Count, destinationList.Count);
@@ -148,7 +148,7 @@ namespace UnitTestXUnitNet6
             List<Source> sourceList = null;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => SimpleMapper.MapList<Source, Destination>(sourceList));
+            Assert.Throws<ArgumentNullException>(() => ValueMapper.MapList<Source, Destination>(sourceList));
         }
 
         [Fact]
@@ -158,7 +158,7 @@ namespace UnitTestXUnitNet6
             var sourceList = new List<Source>();
 
             // Act
-            var destinationList = SimpleMapper.MapList<Source, Destination>(sourceList);
+            var destinationList = ValueMapper.MapList<Source, Destination>(sourceList);
 
             // Assert
             Assert.Empty(destinationList);
@@ -177,7 +177,7 @@ namespace UnitTestXUnitNet6
             var ignoredProperties = new HashSet<string> { "City" };
 
             // Act
-            var destinationList = SimpleMapper.MapList<Source, Destination>(sourceList, ignoredProperties);
+            var destinationList = ValueMapper.MapList<Source, Destination>(sourceList, ignoredProperties);
 
             // Assert
             Assert.Equal(sourceList.Count, destinationList.Count);
@@ -194,13 +194,13 @@ namespace UnitTestXUnitNet6
         {
             // Arrange - Populate caches
             var source = new Source { Name = "Test" };
-            var destination = SimpleMapper.Map<Source, Destination>(source);
+            var destination = ValueMapper.Map<Source, Destination>(source);
 
             // Act
-            SimpleMapper.ClearCaches();
+            ValueMapper.ClearCaches();
 
             // Assert - No direct way to verify caches are cleared, but we can ensure mapping still works
-            var newDestination = SimpleMapper.Map<Source, Destination>(source);
+            var newDestination = ValueMapper.Map<Source, Destination>(source);
             Assert.Equal(source.Name, newDestination.Name);
         }
 
@@ -216,7 +216,7 @@ namespace UnitTestXUnitNet6
 
             // Act
             var startTime = DateTime.UtcNow;
-            var destinationList = SimpleMapper.MapList<Source, Destination>(sourceList);
+            var destinationList = ValueMapper.MapList<Source, Destination>(sourceList);
             var endTime = DateTime.UtcNow;
 
             // Assert
@@ -242,7 +242,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<Models, NumericDestination>(source);
+            var destination = ValueMapper.Map<Models, NumericDestination>(source);
 
             // Assert
             Assert.Equal((long)source.IntValue, destination.LongValue);
@@ -260,7 +260,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<BasicSource, NullableDestination>(source);
+            var destination = ValueMapper.Map<BasicSource, NullableDestination>(source);
 
             // Assert
             Assert.Null(destination.NullableValue);
@@ -276,7 +276,7 @@ namespace UnitTestXUnitNet6
             };
 
             // Act
-            var destination = SimpleMapper.Map<BasicSource, NonNullableDestination>(source);
+            var destination = ValueMapper.Map<BasicSource, NonNullableDestination>(source);
 
             // Assert
             Assert.Equal(0, destination.IntValue); // Default value should remain
@@ -290,13 +290,12 @@ namespace UnitTestXUnitNet6
             var source2 = new Source { Name = "Second" };
 
             // Act - This should use cache for the second call
-            var dest1 = SimpleMapper.Map<Source, Destination>(source1);
-            var dest2 = SimpleMapper.Map<Source, Destination>(source2);
+            var dest1 = ValueMapper.Map<Source, Destination>(source1);
+            var dest2 = ValueMapper.Map<Source, Destination>(source2);
 
             // Assert
             Assert.Equal(source1.Name, dest1.Name);
             Assert.Equal(source2.Name, dest2.Name);
         }
     }
-
 }

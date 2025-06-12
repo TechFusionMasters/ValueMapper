@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -6,10 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using ValueMapperUtility.Attribute;
 
-namespace SimpleMapperUtility
+namespace ValueMapperUtility
 {
-    public static class SimpleMapper
+    public static class ValueMapper
     {
         private class PropertyMapping<TSrc, TDst>
         {
@@ -119,7 +120,7 @@ namespace SimpleMapperUtility
 
                 // Determine source property
                 PropertyInfo src = null;
-                var attrDst = dst.GetCustomAttribute<SimpleMapperMappingAttribute>(true);
+                var attrDst = dst.GetCustomAttribute<ValueMapperMappingAttribute>(true);
                 if (attrDst != null)
                 {
                     // Attribute on destination: use specified source name
@@ -129,7 +130,7 @@ namespace SimpleMapperUtility
                 {
                     // No match by name: look for attribute on source property mapping to this dst
                     src = srcProps.Values.FirstOrDefault(sp =>
-                        sp.GetCustomAttribute<SimpleMapperMappingAttribute>(true)?.SourcePropertyName
+                        sp.GetCustomAttribute<ValueMapperMappingAttribute>(true)?.SourcePropertyName
                         .Equals(dst.Name, StringComparison.OrdinalIgnoreCase) == true);
                 }
 
@@ -180,7 +181,7 @@ namespace SimpleMapperUtility
         private static HashSet<string> GetTypeIgnored(Type t)
             => _typeIgnoredCache.GetOrAdd(t, _ => new HashSet<string>(
                    GetTypeProperties(t)
-                   .Where(p => p.GetCustomAttribute<SimpleMapperIgnoreAttribute>(true) != null)
+                   .Where(p => p.GetCustomAttribute<ValueMapperIgnoreAttribute>(true) != null)
                    .Select(p => p.Name)));
 
         private static Func<object, object> CreateConverter(Type src, Type dst)
@@ -248,4 +249,4 @@ namespace SimpleMapperUtility
             _typeIgnoredCache.Clear();
         }
     }
-}
+} 

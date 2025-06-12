@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using SimpleMapperUtility;
+using ValueMapperUtility;
 using AutoMapper;
 using Mapster;
 using Benchmark;
@@ -15,7 +15,7 @@ namespace Benchmark
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Running SimpleMapper Benchmarks...");
+            Console.WriteLine("Running ValueMapper Benchmarks...");
 
             // For quick testing without BenchmarkDotNet
             if (args.Length > 0 && args[0] == "quick")
@@ -28,8 +28,8 @@ namespace Benchmark
             }
 
             // Run full benchmarks with BenchmarkDotNet
-            Console.WriteLine("Running SimpleMapper Performance Benchmarks...");
-            var performanceSummary = BenchmarkRunner.Run<SimpleMapperBenchmarks>();
+            Console.WriteLine("Running ValueMapper Performance Benchmarks...");
+            var performanceSummary = BenchmarkRunner.Run<ValueMapperBenchmarks>();
 
             Console.WriteLine("Running Mapper Comparison Benchmarks...");
             var comparisonSummary = BenchmarkRunner.Run<MapperComparisonBenchmarks>();
@@ -42,7 +42,7 @@ namespace Benchmark
 
         private static void QuickBenchmark()
         {
-            var benchmark = new SimpleMapperBenchmarks();
+            var benchmark = new ValueMapperBenchmarks();
             benchmark.Setup();
 
             Console.WriteLine("Quick benchmark mode (less accurate but faster)");
@@ -88,14 +88,14 @@ namespace Benchmark
 
             // Run each benchmark manually with a stopwatch
             RunQuickBenchmark("Manual mapping (baseline)", () => benchmark.Manual());
-            RunQuickBenchmark("SimpleMapper", () => benchmark.SimpleMapper());
+            RunQuickBenchmark("ValueMapper", () => benchmark.ValueMapper());
             RunQuickBenchmark("AutoMapper", () => benchmark.AutoMapper());
             RunQuickBenchmark("Mapster", () => benchmark.Mapster());
             RunQuickBenchmark("ManuallyImplementedMapper", () => benchmark.ManuallyImplementedMapper());
 
             Console.WriteLine("\nCollection mapping (1000 items):");
             Console.WriteLine("===============================");
-            RunQuickBenchmark("SimpleMapperCollection", () => benchmark.SimpleMapperCollection());
+            RunQuickBenchmark("ValueMapperCollection", () => benchmark.ValueMapperCollection());
             RunQuickBenchmark("AutoMapperCollection", () => benchmark.AutoMapperCollection());
             RunQuickBenchmark("MapsterCollection", () => benchmark.MapsterCollection());
             RunQuickBenchmark("ManuallyImplementedMapperCollection", () => benchmark.ManuallyImplementedMapperCollection());
@@ -105,9 +105,9 @@ namespace Benchmark
 
             // Warm-up tests
             var sw = Stopwatch.StartNew();
-            benchmark.SimpleMapperWarmup();
+            benchmark.ValueMapperWarmup();
             sw.Stop();
-            Console.WriteLine($"SimpleMapper warmup: {sw.ElapsedMilliseconds}ms");
+            Console.WriteLine($"ValueMapper warmup: {sw.ElapsedMilliseconds}ms");
 
             sw.Restart();
             benchmark.AutoMapperWarmup();
@@ -136,7 +136,7 @@ namespace Benchmark
             }
             manualTime /= 1000;
 
-            MeasureRelativePerformance("SimpleMapper", () => benchmark.SimpleMapper(), manualTime);
+            MeasureRelativePerformance("ValueMapper", () => benchmark.ValueMapper(), manualTime);
             MeasureRelativePerformance("AutoMapper", () => benchmark.AutoMapper(), manualTime);
             MeasureRelativePerformance("Mapster", () => benchmark.Mapster(), manualTime);
             MeasureRelativePerformance("ManuallyImplementedMapper", () => benchmark.ManuallyImplementedMapper(), manualTime);

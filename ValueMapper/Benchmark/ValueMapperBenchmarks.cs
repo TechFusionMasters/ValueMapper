@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using SimpleMapperUtility;
+using ValueMapperUtility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Benchmark
 {
     [MemoryDiagnoser]
-    public class SimpleMapperBenchmarks
+    public class ValueMapperBenchmarks
     {
         private List<SourceSimple> _simpleObjects;
         private List<SourceComplex> _complexObjects;
@@ -38,27 +38,27 @@ namespace Benchmark
             };
 
             // Clear caches to ensure fresh start
-            SimpleMapper.ClearCaches();
+            ValueMapper.ClearCaches();
         }
 
         [Benchmark]
         public void ColdStartBenchmark()
         {
             // This measures the first-time mapping cost including compilation
-            SimpleMapper.ClearCaches();
-            var result = SimpleMapper.Map<SourceSimple, DestSimple>(_simpleObjects[0]);
+            ValueMapper.ClearCaches();
+            var result = ValueMapper.Map<SourceSimple, DestSimple>(_simpleObjects[0]);
         }
 
         [Benchmark]
         public DestSimple MapSimpleObject()
         {
-            return SimpleMapper.Map<SourceSimple, DestSimple>(_simpleObjects[0]);
+            return ValueMapper.Map<SourceSimple, DestSimple>(_simpleObjects[0]);
         }
 
         [Benchmark]
         public DestComplex MapComplexObject()
         {
-            return SimpleMapper.Map<SourceComplex, DestComplex>(_complexObjects[0]);
+            return ValueMapper.Map<SourceComplex, DestComplex>(_complexObjects[0]);
         }
 
         [Benchmark]
@@ -66,26 +66,26 @@ namespace Benchmark
         [Arguments(1000)]
         public List<DestSimple> MapCollection(int count)
         {
-            return SimpleMapper.MapList<SourceSimple, DestSimple>(_simpleObjects.Take(count));
+            return ValueMapper.MapList<SourceSimple, DestSimple>(_simpleObjects.Take(count));
         }
 
         [Benchmark]
         [Arguments(10000)]
         public List<DestSimple> MapCollectionParallel(int count)
         {
-            return SimpleMapper.MapList<SourceSimple, DestSimple>(_simpleObjects.Take(count));
+            return ValueMapper.MapList<SourceSimple, DestSimple>(_simpleObjects.Take(count));
         }
 
         [Benchmark]
         public DestWithDifferentTypes MapWithTypeConversions()
         {
-            return SimpleMapper.Map<SourceWithDifferentTypes, DestWithDifferentTypes>(_sourceWithDifferentTypes);
+            return ValueMapper.Map<SourceWithDifferentTypes, DestWithDifferentTypes>(_sourceWithDifferentTypes);
         }
 
         [Benchmark]
         public DestWithCustomNames MapWithCustomPropertyNames()
         {
-            return SimpleMapper.Map<SourceWithCustomNames, DestWithCustomNames>(_sourceWithCustomNames);
+            return ValueMapper.Map<SourceWithCustomNames, DestWithCustomNames>(_sourceWithCustomNames);
         }
 
        

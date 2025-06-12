@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>ValueMapper</Title>
+    <Version>1.0.0</Version>
+    <Authors>ValueMapper</Authors>
+    <Company>ValueMapper</Company>
+    <Description>A lightweight, high-performance object-to-object mapper for .NET</Description>
+    <PackageProjectUrl>https://github.com/yourusername/ValueMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/yourusername/ValueMapper</RepositoryUrl>
+    <PackageTags>mapping;object-mapping;automapper;valuemapper</PackageTags>
+    <PackageId>ValueMapper</PackageId>
+    <Product>ValueMapper</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project> 

@@ -8,3 +8,11 @@
 /SimpleMapper/Benchmark/bin
 /SimpleMapper/Benchmark/obj
 /SimpleMapper/Example/bin
+/ValueMapper/Benchmark/bin
+/ValueMapper/Benchmark/obj
+/ValueMapper/packages
+/ValueMapper/UnitTestXUnitNet6/bin
+/ValueMapper/UnitTestXUnitNet6/obj
+/ValueMapper/ValueMapperCore/bin
+/ValueMapper/ValueMapperCore/obj
+/ValueMapper/.vs

@@ -1,4 +1,5 @@
-﻿using SimpleMapperUtility;
+﻿using ValueMapperUtility;
+using ValueMapperUtility.Attribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,17 +83,15 @@ namespace Benchmark
     // Classes for testing custom property mapping
     public class SourceWithCustomNames
     {
+        [ValueMapperMapping("DestinationCustomName")]
         public string SourceProperty { get; set; }
-
-        [SimpleMapperMapping("DestinationCustomName")]
         public int AnotherProperty { get; set; }
     }
 
     public class DestWithCustomNames
     {
-        [SimpleMapperMapping("SourceProperty")]
-        public string DestProperty { get; set; }
-
-        public int DestinationCustomName { get; set; }
+        [ValueMapperMapping("SourceProperty")]
+        public string DestinationCustomName { get; set; }
+        public int AnotherProperty { get; set; }
     }
 }
