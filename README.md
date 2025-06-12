@@ -1,6 +1,20 @@
 # ValueMapper
 
-ValueMapper is a straightforward, easy-to-use object-to-object mapping utility for .NET. It provides a convenient way to map properties between different object types with minimal configuration.
+A high-performance, lightweight object-to-object mapper for .NET with zero dependencies. ValueMapper provides fast mapping capabilities with a simple API, making it easy to map between different object types while maintaining good performance.
+
+## Features
+
+- ✨ Zero dependencies
+- 🚀 High performance
+- 💡 Simple API
+- 🔄 Automatic type conversion
+- 🏷️ Custom property mapping via attributes
+- ⏭️ Property ignoring
+- 📝 Collection mapping
+- 🔄 Enum mapping (case-insensitive)
+- 🧵 Parallel collection mapping for large datasets
+- 🔒 Thread-safe operation
+- 🔥 Mapping compilation caching
 
 ## Installation
 
@@ -8,133 +22,162 @@ ValueMapper is a straightforward, easy-to-use object-to-object mapping utility f
 dotnet add package ValueMapper
 ```
 
-## Quick Start
+## Usage Examples
+
+### Basic Property Mapping
 
 ```csharp
-using ValueMapperUtility;
-
-// Define your classes
-public class UserDto
+var source = new Source
 {
-    public string Name { get; set; }
-    public int Age { get; set; }
-}
-
-public class UserEntity
-{
-    public string Name { get; set; }
-    public int Age { get; set; }
-}
-
-// Perform mapping
-var dto = new UserDto { Name = "John Doe", Age = 30 };
-var entity = ValueMapper.Map<UserDto, UserEntity>(dto);
-```
-
-## Features
-
-- Simple property matching by name
-- Basic type conversion support
-- Custom property mapping using attributes
-- Property exclusion support
-- Collection mapping
-- Enum mapping support
-
-## Documentation
-
-For full documentation, visit our [GitHub repository](https://github.com/TechFusionMasters/ValueMapper).
-
-### Collection Mapping
-
-ValueMapper provides support for collections in two ways:
-
-1. Mapping Lists of Objects using `MapList`:
-
-```csharp
-var dtoList = new List<UserDto>
-{
-    new UserDto { Name = "John Doe", Age = 30 },
-    new UserDto { Name = "Jane Doe", Age = 28 }
+    Name = "John Doe",
+    Age = 30,
+    City = "New York"
 };
 
-// Maps each object in the list, with automatic parallelization for large lists
-var entityList = ValueMapper.MapList<UserDto, UserEntity>(dtoList);
+var destination = ValueMapper.Map<Source, Destination>(source);
 ```
 
-2. Mapping Collection Properties:
-
-```csharp
-public class UserDto
-{
-    public string Name { get; set; }
-    public List<string> Roles { get; set; }
-}
-
-public class UserEntity
-{
-    public string Name { get; set; }
-    public List<string> Roles { get; set; }
-}
-
-// Both Name and Roles will be mapped automatically
-var dto = new UserDto
-{
-    Name = "John",
-    Roles = new List<string> { "Admin", "User" }
-};
-
-var entity = ValueMapper.Map<UserDto, UserEntity>(dto);
-```
-
-### Custom Property Mapping
-
-Use the `ValueMapperMappingAttribute` to map properties with different names:
+### Custom Property Mapping Using Attributes
 
 ```csharp
 public class Source
 {
-    public string FullName { get; set; }
+    [ValueMapperMapping("CustomName")]
+    public string SourceProperty { get; set; }
 }
 
 public class Destination
 {
-    [ValueMapperMapping("FullName")]
-    public string Name { get; set; }
+    public string CustomName { get; set; }
 }
+
+var source = new Source { SourceProperty = "Custom Value" };
+var destination = ValueMapper.Map<Source, Destination>(source);
+// destination.CustomName will contain "Custom Value"
 ```
 
 ### Ignoring Properties
 
-Use the `ValueMapperIgnoreAttribute` to exclude properties from mapping:
-
 ```csharp
-public class UserEntity
+public class Source
 {
     public string Name { get; set; }
-
     [ValueMapperIgnore]
-    public string InternalId { get; set; }
+    public string IgnoredProperty { get; set; }
+}
+
+// Or ignore properties at runtime
+var ignoredProperties = new HashSet<string> { "Age" };
+var destination = ValueMapper.Map<Source, Destination>(source, ignoredProperties);
+```
+
+### Collection Mapping
+
+```csharp
+var sourceList = new List<Source>
+{
+    new Source { Name = "John", Age = 30 },
+    new Source { Name = "Jane", Age = 25 }
+};
+
+var destinationList = ValueMapper.MapList<Source, Destination>(sourceList);
+```
+
+### Enum Mapping (Case-Insensitive)
+
+```csharp
+public enum SampleEnum
+{
+    None,
+    Value1,
+    Value2
+}
+
+public class Source
+{
+    public string EnumValue { get; set; }  // Can be "Value1" or "value1"
+}
+
+public class Destination
+{
+    public SampleEnum EnumValue { get; set; }
 }
 ```
 
 ### Type Conversion Support
 
-ValueMapper handles various type conversions:
+```csharp
+public class Source
+{
+    public int IntValue { get; set; }
+    public double DoubleValue { get; set; }
+    public string StringNumber { get; set; }
+}
 
-- Numeric type conversions (int, long, double, decimal, etc.)
-- String to/from numeric types
-- String to/from enum types (with case-insensitive parsing)
-- Enum to/from numeric types
-- Nullable type handling
-- Custom type conversions through the Convert.ChangeType method
+public class Destination
+{
+    public long LongValue { get; set; }      // Converts from int
+    public float FloatValue { get; set; }    // Converts from double
+    public int IntFromString { get; set; }   // Converts from string
+}
+```
 
-## Limitations
+### Nullable Handling
 
-- Does not support deep object mapping (nested objects must be mapped separately)
-- Only public properties are mapped
-- Properties must have both getter and setter to be mapped
-- Basic caching implementation
-- Not optimized for high-performance scenarios
+```csharp
+public class Source
+{
+    public string Value { get; set; }  // Can be null
+}
+
+public class Destination
+{
+    public int? NullableValue { get; set; }  // Will be null if source is null
+}
+```
+
+## Performance
+
+ValueMapper is designed for high performance. Here are some benchmark results comparing it with other popular mappers:
+
+- Single object mapping
+- Collection mapping (100,000 items)
+- Parallel collection mapping
+- Cold start vs. Cached performance
+
+Run the benchmarks yourself:
+
+```shell
+cd ValueMapper/Benchmark
+dotnet run         # Full benchmarks
+dotnet run quick   # Quick benchmarks
+```
+
+## Cache Management
+
+```csharp
+// Clear all caches
+ValueMapper.ClearCaches();
+
+// Pre-warm mapping for specific types
+ValueMapper.PreWarmMapping<Source, Destination>();
+
+// Clear cache for specific types
+ValueMapper.Clear<Source, Destination>();
+```
+
+## Known Limitations
+
+1. Deep object mapping is not currently supported
+
+   - The `Map_DeepObjectMapping_ShouldMapCorrectly` test demonstrates this limitation
+   - Complex nested objects with multiple levels are not automatically mapped
+
+2. No circular reference detection
+3. No support for mapping private properties
+4. Collection type conversion (e.g., List<T> to Array<T>) is not supported
+5. No support for custom value converters
+6. No support for conditional mapping
 
 ## Contributing
 
