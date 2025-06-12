@@ -2,6 +2,35 @@
 
 A high-performance, lightweight object-to-object mapper for .NET with zero dependencies. ValueMapper provides fast mapping capabilities with a simple API, making it easy to map between different object types while maintaining good performance.
 
+## Feature Comparison
+
+| Feature                      | ValueMapper    | Mapster       | AutoMapper     |
+| ---------------------------- | -------------- | ------------- | -------------- |
+| Zero Dependencies            | ✅             | ✅            | ❌             |
+| Basic Property Mapping       | ✅             | ✅            | ✅             |
+| Flattening                   | ❌             | ✅            | ✅             |
+| Deep Object Mapping          | ❌             | ✅            | ✅             |
+| Collection Mapping           | ✅             | ✅            | ✅             |
+| Enum Mapping                 | ✅             | ✅            | ✅             |
+| Custom Property Mapping      | ✅             | ✅            | ✅             |
+| Property Ignoring            | ✅             | ✅            | ✅             |
+| Type Conversion              | ✅             | ✅            | ✅             |
+| Nullable Handling            | ✅             | ✅            | ✅             |
+| Configuration API            | ❌             | ✅            | ✅             |
+| Custom Value Resolvers       | ❌             | ✅            | ✅             |
+| Conditional Mapping          | ❌             | ✅            | ✅             |
+| Circular Reference Handling  | ❌             | ✅            | ✅             |
+| Before/After Mapping Actions | ❌             | ✅            | ✅             |
+| Runtime Configuration        | ❌             | ✅            | ✅             |
+| Mapping Validation           | ❌             | ✅            | ✅             |
+| Collection Type Conversion   | ❌             | ✅            | ✅             |
+| Parallel Collection Mapping  | ✅             | ✅            | ✅             |
+| Compile-time Type Safety     | ❌             | ✅            | ❌             |
+| Mapping Cache                | ✅             | ✅            | ✅             |
+| Performance (vs Manual)\*    | ~11.95x slower | ~8.11x slower | ~12.67x slower |
+
+\* Based on benchmark results for single object mapping. For collection mapping (100,000 items), ValueMapper performs better: ValueMapper (39.84ms), Mapster (65.34ms), AutoMapper (70.80ms).
+
 ## Features
 
 - ✨ Zero dependencies
@@ -140,10 +169,55 @@ public class Destination
 
 ValueMapper is designed for high performance. Here are some benchmark results comparing it with other popular mappers:
 
-- Single object mapping
-- Collection mapping (100,000 items)
-- Parallel collection mapping
-- Cold start vs. Cached performance
+### Performance Comparison
+
+#### Single Object Mapping (Relative to Manual Implementation)
+
+| Mapper              | Performance | Relative Slowdown |
+| ------------------- | ----------- | ----------------- |
+| Manual (baseline)   | 0.000ms     | 1x                |
+| ValueMapper         | 0.001ms     | 11.95x slower     |
+| AutoMapper          | 0.002ms     | 12.67x slower     |
+| Mapster             | 0.001ms     | 8.11x slower      |
+| ManuallyImplemented | 0.001ms     | 7.29x slower      |
+
+#### Collection Mapping (100,000 items)
+
+| Mapper                        | Time per Operation |
+| ----------------------------- | ------------------ |
+| ValueMapperCollection         | 39.840ms           |
+| AutoMapperCollection          | 70.800ms           |
+| MapsterCollection             | 65.340ms           |
+| ManuallyImplementedCollection | 45.310ms           |
+
+#### Warmup Performance (First-time Use)
+
+| Mapper              | Warmup Time      |
+| ------------------- | ---------------- |
+| ValueMapper         | 0ms              |
+| AutoMapper          | 7ms              |
+| Mapster             | 10ms             |
+| ManuallyImplemented | No warmup needed |
+
+### Key Performance Insights:
+
+1. **Single Object Mapping**:
+
+   - All mappers show minimal overhead for single object mapping
+   - Mapster shows the best performance among the automated mappers
+   - ValueMapper performs similarly to other popular mappers
+
+2. **Collection Mapping**:
+
+   - ValueMapper shows strong performance with large collections
+   - ~43% faster than Mapster
+   - ~77% faster than AutoMapper
+   - Close to manually implemented mapping performance
+
+3. **Warmup Time**:
+   - ValueMapper has excellent cold start performance
+   - No significant warmup overhead
+   - Better startup time compared to both Mapster and AutoMapper
 
 Run the benchmarks yourself:
 
@@ -186,3 +260,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+```
+
+```
