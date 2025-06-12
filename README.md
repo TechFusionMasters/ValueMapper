@@ -4,32 +4,35 @@ A high-performance, lightweight object-to-object mapper for .NET with zero depen
 
 ## Feature Comparison
 
-| Feature                      | ValueMapper    | Mapster       | AutoMapper     |
-| ---------------------------- | -------------- | ------------- | -------------- |
-| Zero Dependencies            | ✅             | ✅            | ❌             |
-| Basic Property Mapping       | ✅             | ✅            | ✅             |
-| Flattening                   | ❌             | ✅            | ✅             |
-| Deep Object Mapping          | ❌             | ✅            | ✅             |
-| Collection Mapping           | ✅             | ✅            | ✅             |
-| Enum Mapping                 | ✅             | ✅            | ✅             |
-| Custom Property Mapping      | ✅             | ✅            | ✅             |
-| Property Ignoring            | ✅             | ✅            | ✅             |
-| Type Conversion              | ✅             | ✅            | ✅             |
-| Nullable Handling            | ✅             | ✅            | ✅             |
-| Configuration API            | ❌             | ✅            | ✅             |
-| Custom Value Resolvers       | ❌             | ✅            | ✅             |
-| Conditional Mapping          | ❌             | ✅            | ✅             |
-| Circular Reference Handling  | ❌             | ✅            | ✅             |
-| Before/After Mapping Actions | ❌             | ✅            | ✅             |
-| Runtime Configuration        | ❌             | ✅            | ✅             |
-| Mapping Validation           | ❌             | ✅            | ✅             |
-| Collection Type Conversion   | ❌             | ✅            | ✅             |
-| Parallel Collection Mapping  | ✅             | ✅            | ✅             |
-| Compile-time Type Safety     | ❌             | ✅            | ❌             |
-| Mapping Cache                | ✅             | ✅            | ✅             |
-| Performance (vs Manual)\*    | ~11.95x slower | ~8.11x slower | ~12.67x slower |
+| Feature                      | ValueMapper         | Mapster       | AutoMapper     |
+| ---------------------------- | ------------------- | ------------- | -------------- |
+| Zero Dependencies            | ✅                  | ✅            | ❌             |
+| Basic Property Mapping       | ✅                  | ✅            | ✅             |
+| Flattening                   | ❌                  | ✅            | ✅             |
+| Deep Object Mapping          | ❌                  | ✅            | ✅             |
+| Collection Mapping           | ✅                  | ✅            | ✅             |
+| Enum Mapping                 | ✅                  | ✅            | ✅             |
+| Custom Property Mapping      | ✅ (attr)           | ✅            | ✅             |
+| Property Ignoring            | ✅                  | ✅            | ✅             |
+| Type Conversion              | ✅                  | ✅            | ✅             |
+| Nullable Handling            | ✅                  | ✅            | ✅             |
+| Configuration API            | ❌                  | ✅            | ✅             |
+| Custom Value Resolvers       | ❌                  | ✅            | ✅             |
+| Conditional Mapping          | ❌                  | ✅            | ✅             |
+| Circular Reference Handling  | ❌                  | ✅            | ✅             |
+| Before/After Mapping Actions | ❌                  | ✅            | ✅             |
+| Runtime Configuration        | ❌                  | ✅            | ✅             |
+| Mapping Validation           | ❌                  | ✅            | ✅             |
+| Collection Type Conversion   | ❌ (List→List only) | ✅            | ✅             |
+| Parallel Collection Mapping  | ✅ (built-in)       | ❌+           | ❌+            |
+| Compile-time Type Safety     | ✅                  | ❌‡           | ❌‡            |
+| Mapping Cache                | ✅                  | ✅            | ✅             |
+| Performance (vs Manual)\*    | ~11.95x slower      | ~8.11x slower | ~12.67x slower |
 
 \* Based on benchmark results for single object mapping. For collection mapping (100,000 items), ValueMapper performs better: ValueMapper (39.84ms), Mapster (65.34ms), AutoMapper (70.80ms).
+
+- Can be implemented manually
+  ‡ Available through source generators
 
 ## Features
 
