@@ -32,7 +32,6 @@ A high-performance, lightweight object-to-object mapper for .NET with zero depen
 \* Based on benchmark results for single object mapping. For collection mapping (100,000 items), ValueMapper performs better: ValueMapper (39.84ms), Mapster (65.34ms), AutoMapper (70.80ms).
 
 - Can be implemented manually
-  ‡ Available through source generators
 
 ## Features
 
