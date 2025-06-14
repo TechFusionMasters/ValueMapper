@@ -31,5 +31,10 @@ jobs:
       - name: "List package directory contents"
         run: dir "${{ env.PACKAGE_OUTPUT_DIRECTORY }}"
         shell: cmd
-      - name: "Push all packages"
-        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }} --skip-duplicate
+      - name: "Push packages with PowerShell"
+        shell: pwsh
+        run: |
+          $packages = Get-ChildItem "${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg"
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName -k "${{ secrets.NUGET_API_KEY }}" -s "${{ env.NUGET_SOURCE_URL }}" --skip-duplicate
+          }
