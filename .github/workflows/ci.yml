@@ -31,7 +31,7 @@ jobs:
       - name: "List package directory contents"
         run: dir "${{ env.PACKAGE_OUTPUT_DIRECTORY }}"
         shell: cmd
-      - name: "Push package"
-        run: |
-          dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ValueMapper.*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
-        shell: bash
+      - name: "Push main package"
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ValueMapper.1.0.0.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
+      - name: "Push symbols package"
+        run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/ValueMapper.1.0.0.symbols.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s ${{ env.NUGET_SOURCE_URL }}
