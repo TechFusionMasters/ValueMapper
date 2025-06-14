@@ -7,16 +7,23 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>ValueMapper</Title>
-    <Version>1.0.0</Version>
-    <Authors>ValueMapper</Authors>
-    <Company>ValueMapper</Company>
+    <Version>1.0.1</Version>
+    <Authors>Jeevanandan J</Authors>
+    <Company>TechFusionMasters</Company>
     <Description>A lightweight, high-performance object-to-object mapper for .NET</Description>
-    <PackageProjectUrl>https://github.com/yourusername/ValueMapper</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/yourusername/ValueMapper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TechFusionMasters/ValueMapper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TechFusionMasters/ValueMapper</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>mapping;object-mapping;automapper;valuemapper</PackageTags>
     <PackageId>ValueMapper</PackageId>
     <Product>ValueMapper</Product>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright © TechFusionMasters 2025</Copyright>
   </PropertyGroup>
 
-</Project> 
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
