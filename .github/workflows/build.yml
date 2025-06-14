@@ -8,6 +8,7 @@ on:
 env:
   SOLUTION_FILE: ValueMapper/ValueMapper.sln
   PROJECT_PATH: ValueMapper/ValueMapperCore/ValueMapper.csproj
+  TEST_RESULTS_PATH: TestResults
 
 jobs:
   build:
@@ -31,9 +32,49 @@ jobs:
       - name: "Run tests"
         shell: pwsh
         run: |
-          $testOutput = dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --logger "console;verbosity=detailed"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Output "::warning::Unit tests failed. Check the logs for details."
-            # This line ensures the step succeeds even though tests failed
-            exit 0
+          mkdir -p ${{ env.TEST_RESULTS_PATH }}
+          dotnet test ${{ env.SOLUTION_FILE }} --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" --results-directory ${{ env.TEST_RESULTS_PATH }}
+          # Continue even if tests fail
+          exit 0
+
+      - name: "Upload test results"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: ${{ env.TEST_RESULTS_PATH }}
+
+      - name: "Test Report"
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: "${{ env.TEST_RESULTS_PATH }}/*.trx"
+          reporter: dotnet-trx
+          fail-on-error: false
+
+      - name: "Check for test failures"
+        shell: pwsh
+        if: always()
+        run: |
+          $trxFiles = Get-ChildItem -Path "${{ env.TEST_RESULTS_PATH }}" -Filter "*.trx"
+          foreach ($file in $trxFiles) {
+            $xml = [xml](Get-Content $file.FullName)
+            $failedTests = $xml.SelectNodes("//UnitTestResult[@outcome='Failed']")
+            $totalTests = $xml.SelectNodes("//UnitTestResult").Count
+            $passedTests = $totalTests - $failedTests.Count
+            
+            Write-Output "Total Tests: $totalTests"
+            Write-Output "Passed Tests: $passedTests"
+            Write-Output "Failed Tests: $($failedTests.Count)"
+            
+            if ($failedTests.Count -gt 0) {
+              Write-Output "::warning::❌ $($failedTests.Count) tests failed out of $totalTests tests"
+              foreach ($test in $failedTests) {
+                $testName = $test.testName
+                Write-Output "::warning::Failed Test: $testName"
+              }
+            } else {
+              Write-Output "::notice::✅ All $totalTests tests passed!"
+            }
           }
