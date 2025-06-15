@@ -264,10 +264,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
-### 👨‍💻 Author
 
-Maintained by **Jeevanandan J**  
+## 🧑‍💻 Author
+
+**Maintained by [Jeevanandan J](mailto:jeevasusej@outlook.com)**
+
 🔗 [LinkedIn](https://www.linkedin.com/in/jeevanandan-j-07b43b91/)  
-📦 [GitHub](https://github.com/jeevasusej)
-📬 [jeevasusej@outlook.com](mailto:jeevasusej@outlook.com)
+📦 [GitHub](https://github.com/jeevasusej)  
+📧 [jeevasusej@outlook.com](mailto:jeevasusej@outlook.com)
 
