@@ -271,6 +271,6 @@ Created and maintained by **Jeevanandan J**
 
 🔗 [LinkedIn](https://www.linkedin.com/in/jeevanandan-j-07b43b91/)  
 📦 [GitHub](https://github.com/jeevasusej)  
-📧 [Email](mailto:jeevasusej@outlook.com)
+📧 [jeevasusej@outlook.com](mailto:jeevasusej@outlook.com)
 
 
