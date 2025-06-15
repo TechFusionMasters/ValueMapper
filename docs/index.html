@@ -3,160 +3,154 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>ValueMapper</title>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
 
   <style>
-  body {
-    font-family: 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.6;
-    max-width: 960px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background: #f9f9f9;
-    color: #222;
-  }
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      color: #222;
+    }
 
-  h1, h2, h3, h4 {
-    color: #1a202c;
-    margin-top: 2rem;
-  }
+    h1, h2, h3, h4 {
+      color: #1a202c;
+      margin-top: 2rem;
+    }
 
-  a {
-    color: #0366d6;
-    text-decoration: none;
-  }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
 
-  a:hover {
-    text-decoration: underline;
-  }
+    a:hover {
+      text-decoration: underline;
+    }
 
-  pre {
-  background-color: #1e1e1e;
-  color: #dcdcdc;
-  font-family: 'Fira Code', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  padding: 1rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  white-space: pre;
-  margin-bottom: 1.5rem;
-  border: 1px solid #444;
-}
+    pre {
+      background-color: #1e1e1e;
+      color: #dcdcdc;
+      font-family: 'Fira Code', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 1.5rem;
+      border: 1px solid #444;
+    }
 
-code {
-  background: none;
-  color: inherit;
-}
+    code {
+      background: none;
+      color: inherit;
+    }
 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+    }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    overflow: hidden;
-  }
+    table thead {
+      background: #4a5568;
+      color: #fff;
+    }
 
-  table thead {
-    background: #4a5568;
-    color: #fff;
-  }
+    table th, table td {
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      text-align: left;
+      vertical-align: middle;
+    }
 
-  table th, table td {
-    padding: 0.75rem 1rem;
-    border: 1px solid #ddd;
-    text-align: left;
-    vertical-align: middle;
-  }
+    table tbody tr:nth-child(even) {
+      background: #f7fafc;
+    }
 
-  table tbody tr:nth-child(even) {
-    background: #f7fafc;
-  }
+    ul, ol {
+      margin-left: 2rem;
+    }
 
-  ul, ol {
-    margin-left: 2rem;
-  }
+    li {
+      margin-bottom: 0.5rem;
+    }
 
-  li {
-    margin-bottom: 0.5rem;
-  }
+    button, .button-link {
+      background-color: #2d3748;
+      color: #ffffff;
+      padding: 0.6rem 1.2rem;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.25s ease, transform 0.1s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-  .button-link {
-    display: inline-block;
-    background-color: #24292e;
-    color: white;
-    padding: 0.5rem 1rem;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: bold;
-    margin-top: 1rem;
-  }
+    button:hover, .button-link:hover {
+      background-color: #4a5568;
+      transform: translateY(-1px);
+    }
 
-  .button-link:hover {
-    background-color: #444c56;
-  }
+    button:active, .button-link:active {
+      transform: translateY(0);
+    }
 
-  .container {
-    padding: 2rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-  button, .button-link {
-  background-color: #2d3748;
-  color: #ffffff;
-  padding: 0.6rem 1.2rem;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.25s ease, transform 0.1s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+    .container {
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
 
-button:hover, .button-link:hover {
-  background-color: #4a5568;
-  transform: translateY(-1px);
-}
-
-button:active, .button-link:active {
-  transform: translateY(0);
-}
-
-</style>
-
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+  </style>
 </head>
-<body>
-  <header>
-    <h1>ValueMapper</h1>
-    <a href="https://github.com/TechFusionMasters/ValueMapper" target="_blank">
-      <button>View on GitHub</button>
-    </a>
-  </header>
 
-  <div id="readme-content">Loading README...</div>
+<body>
+  <div class="container">
+    <header>
+      <h1>ValueMapper</h1>
+      <a href="https://github.com/TechFusionMasters/ValueMapper" target="_blank">
+        <button>View on GitHub</button>
+      </a>
+    </header>
+
+    <div id="readme-content">Loading README...</div>
+  </div>
 
   <script>
     async function loadReadme() {
       const res = await fetch('https://raw.githubusercontent.com/TechFusionMasters/ValueMapper/main/README.md');
       const markdown = await res.text();
 
-      // Convert markdown to HTML using GitHub API or a small markdown parser
       const html = marked.parse(markdown);
       document.getElementById('readme-content').innerHTML = html;
     }
 
-    // Add marked.js CDN
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js?v=1.0.3'; // cache-busting query
     script.onload = loadReadme;
     document.body.appendChild(script);
   </script>
