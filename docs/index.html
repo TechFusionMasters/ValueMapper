@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ValueMapper</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; line-height: 1.6; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    button {
+      background-color: #24292e;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 0.5rem;
+      overflow-x: auto;
+    }
+    code { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ValueMapper</h1>
+    <a href="https://github.com/TechFusionMasters/ValueMapper" target="_blank">
+      <button>View on GitHub</button>
+    </a>
+  </header>
+
+  <div id="readme-content">Loading README...</div>
+
+  <script>
+    async function loadReadme() {
+      const res = await fetch('https://raw.githubusercontent.com/TechFusionMasters/ValueMapper/main/README.md');
+      const markdown = await res.text();
+
+      // Convert markdown to HTML using GitHub API or a small markdown parser
+      const html = marked.parse(markdown);
+      document.getElementById('readme-content').innerHTML = html;
+    }
+
+    // Add marked.js CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = loadReadme;
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
