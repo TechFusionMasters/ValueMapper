@@ -267,9 +267,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🧑‍💻 Author
 
-**Maintained by [Jeevanandan J](mailto:jeevasusej@outlook.com)**
+Created and maintained by **Jeevanandan J**
 
 🔗 [LinkedIn](https://www.linkedin.com/in/jeevanandan-j-07b43b91/)  
 📦 [GitHub](https://github.com/jeevasusej)  
-📧 [jeevasusej@outlook.com](mailto:jeevasusej@outlook.com)
+📧 [Email](mailto:jeevasusej@outlook.com)
+
 
