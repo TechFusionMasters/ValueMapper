@@ -262,3 +262,18 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+### 👨‍💻 Author
+
+Developed and maintained by **Jeevanandan**  
+---
+
+### 👨‍💻 Author
+
+Developed and maintained by **Jeevanandan J**  
+🔗 [LinkedIn](https://www.linkedin.com/in/jeevanandan-j-07b43b91/)  
+📦 [GitHub](https://github.com/jeevasusej)
+📬 [jeevasusej@outlook.com](mailto:jeevasusej@outlook.com)
+
