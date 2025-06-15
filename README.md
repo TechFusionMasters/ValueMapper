@@ -2,6 +2,21 @@
 
 A high-performance, lightweight object-to-object mapper for .NET with zero dependencies. ValueMapper provides fast mapping capabilities with a simple API, making it easy to map between different object types while maintaining good performance.
 
+## Features
+
+- ⚙️ Zero configuration required
+- ✨ Zero dependencies
+- 🚀 High performance
+- 💡 Simple API
+- 🔄 Automatic type conversion
+- 🏷️ Custom property mapping via attributes
+- ⏭️ Property ignoring
+- 📝 Collection mapping
+- 🔄 Enum mapping (case-insensitive)
+- 🧵 Parallel collection mapping for large datasets
+- 🔒 Thread-safe operation
+- 🔥 Mapping compilation caching
+
 ## Feature Comparison
 
 | Feature                      | ValueMapper         | Mapster       | AutoMapper     |
@@ -30,22 +45,6 @@ A high-performance, lightweight object-to-object mapper for .NET with zero depen
 | Performance (vs Manual)\*    | ~11.95x slower      | ~8.11x slower | ~12.67x slower |
 
 \* Based on benchmark results for single object mapping. For collection mapping (100,000 items), ValueMapper performs better: ValueMapper (39.84ms), Mapster (65.34ms), AutoMapper (70.80ms).
-
-- Can be implemented manually
-
-## Features
-
-- ✨ Zero dependencies
-- 🚀 High performance
-- 💡 Simple API
-- 🔄 Automatic type conversion
-- 🏷️ Custom property mapping via attributes
-- ⏭️ Property ignoring
-- 📝 Collection mapping
-- 🔄 Enum mapping (case-insensitive)
-- 🧵 Parallel collection mapping for large datasets
-- 🔒 Thread-safe operation
-- 🔥 Mapping compilation caching
 
 ## Installation
 
