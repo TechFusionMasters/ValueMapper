@@ -312,6 +312,18 @@ namespace ValueMapperUtility
                     }
                 }
 
+                // Check if this is a complex object that needs deep mapping
+                if (IsComplexType(srcType) && IsComplexType(dstType) && srcType != dstType)
+                {
+                    // Create deep mapping for complex objects
+                    var deepMapping = CreateDeepMapping<TSource, TDestination>(dst.Name, src, dst, srcType, dstType);
+                    if (deepMapping.Getter != null && deepMapping.Setter != null)
+                    {
+                        mappings.Add(deepMapping);
+                        continue;
+                    }
+                }
+
                 // Normal property mapping
                 var converter = CreateConverter(srcType, dstType);
                 if (converter == null)
@@ -858,6 +870,103 @@ namespace ValueMapperUtility
                 return collectionType.GetGenericArguments()[0];
 
             return typeof(object);
+        }
+
+        // Check if a type is a complex object that needs deep mapping
+        private static bool IsComplexType(Type type)
+        {
+            if (type == null) return false;
+
+            // Handle nullable types
+            Type underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+            // Skip primitive types, strings, and enums
+            if (underlyingType.IsPrimitive ||
+                underlyingType == typeof(string) ||
+                underlyingType == typeof(DateTime) ||
+                underlyingType == typeof(TimeSpan) ||
+                underlyingType == typeof(DateTimeOffset) ||
+                underlyingType == typeof(Guid) ||
+                underlyingType == typeof(decimal) ||
+                underlyingType.IsEnum)
+            {
+                return false;
+            }
+
+            // Skip collections
+            if (IsCollection(type))
+            {
+                return false;
+            }
+
+            // Check if it's a class with properties (complex object)
+            return underlyingType.IsClass &&
+                   underlyingType != typeof(object) &&
+                   GetTypeProperties(underlyingType).Length > 0;
+        }
+
+        // Create deep mapping for complex nested objects
+        private static MappingEntry<TSource, TDestination> CreateDeepMapping<TSource, TDestination>(
+            string name, PropertyInfo srcProp, PropertyInfo dstProp, Type srcType, Type dstType)
+        {
+            // Create a getter that retrieves the source object
+            var srcParam = Expression.Parameter(typeof(TSource), "s");
+            var srcPropExpr = Expression.Property(srcParam, srcProp);
+
+            // Create the deep mapping method call
+            var mapMethod = typeof(ValueMapper).GetMethod(nameof(Map), new[] { srcType, typeof(ISet<string>) })
+                           ?? typeof(ValueMapper).GetMethods()
+                               .Where(m => m.Name == nameof(Map) && m.GetGenericArguments().Length == 2)
+                               .FirstOrDefault()?.MakeGenericMethod(srcType, dstType);
+
+            if (mapMethod == null)
+            {
+                // Fallback: try to get the generic Map method and make it generic
+                mapMethod = typeof(ValueMapper).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .Where(m => m.Name == nameof(Map) &&
+                               m.IsGenericMethodDefinition &&
+                               m.GetGenericArguments().Length == 2 &&
+                               m.GetParameters().Length == 2)
+                    .FirstOrDefault()?.MakeGenericMethod(srcType, dstType);
+            }
+
+            if (mapMethod == null)
+            {
+                return new MappingEntry<TSource, TDestination>(name, null, null, dstType, true);
+            }
+
+            // Create getter that performs deep mapping
+            Func<TSource, object> getter = source =>
+            {
+                try
+                {
+                    var sourceValue = srcProp.GetValue(source);
+                    if (sourceValue == null)
+                        return null;
+
+                    // Use reflection to call the generic Map method
+                    return mapMethod.Invoke(null, new object[] { sourceValue, null });
+                }
+                catch
+                {
+                    return null;
+                }
+            };
+
+            // Create setter for the destination property
+            var dstParam = Expression.Parameter(typeof(TDestination), "d");
+            var valueParam = Expression.Parameter(typeof(object), "v");
+            var setterExpr = Expression.Lambda<Action<TDestination, object>>(
+                Expression.Call(
+                    dstParam,
+                    dstProp.GetSetMethod(true),
+                    Expression.Convert(valueParam, dstType)
+                ),
+                dstParam, valueParam
+            );
+            var setter = setterExpr.Compile();
+
+            return new MappingEntry<TSource, TDestination>(name, getter, setter, dstType, true);
         }
     }
 }
