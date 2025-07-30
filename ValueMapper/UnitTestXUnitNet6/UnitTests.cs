@@ -377,5 +377,318 @@ namespace UnitTestXUnitNet6
             Assert.Equal(source.Child.GrandChild.IsActive, destination.Child.GrandChild.IsActive);
             Assert.Equal(source.Child.GrandChild.CreatedDate, destination.Child.GrandChild.CreatedDate);
         }
+
+        [Fact]
+        public void Map_DeepObjectMappingWithCollections_ShouldMapCollectionsCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "key1", "value1" },
+                        { "key2", "value2" }
+                    },
+                    Tags = new List<string> { "tag1", "tag2", "tag3" },
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+
+            // Assert - Verify collections are properly mapped
+            Assert.NotNull(destination.Child.Metadata);
+            // Dictionary: ValueMapper copies the reference (same instance)
+            Assert.Same(source.Child.Metadata, destination.Child.Metadata);
+            Assert.Equal(source.Child.Metadata.Count, destination.Child.Metadata.Count);
+            Assert.Equal(source.Child.Metadata["key1"], destination.Child.Metadata["key1"]);
+            Assert.Equal(source.Child.Metadata["key2"], destination.Child.Metadata["key2"]);
+
+            Assert.NotNull(destination.Child.Tags);
+            // List: ValueMapper creates new List instance but same objects (shallow copy)
+            Assert.NotSame(source.Child.Tags, destination.Child.Tags);
+            Assert.Equal(source.Child.Tags.Count, destination.Child.Tags.Count);
+            Assert.Equal(source.Child.Tags[0], destination.Child.Tags[0]);
+            Assert.Equal(source.Child.Tags[1], destination.Child.Tags[1]);
+            Assert.Equal(source.Child.Tags[2], destination.Child.Tags[2]);
+        }
+
+        [Fact]
+        public void Map_DeepObjectMappingWithNullCollections_ShouldHandleNullsCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    Metadata = null,
+                    Tags = null,
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+
+            // Assert
+            Assert.NotNull(destination.Child);
+            Assert.Null(destination.Child.Metadata); // Dictionary: preserves null
+            Assert.NotNull(destination.Child.Tags); // List: ValueMapper creates empty list instead of null
+            Assert.Empty(destination.Child.Tags);
+            Assert.NotNull(destination.Child.GrandChild);
+        }
+
+        [Fact]
+        public void Map_DeepObjectMappingWithEmptyCollections_ShouldHandleEmptyCollectionsCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    Metadata = new Dictionary<string, string>(),
+                    Tags = new List<string>(),
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+
+            // Assert
+            Assert.NotNull(destination.Child.Metadata);
+            Assert.Empty(destination.Child.Metadata);
+            Assert.Same(source.Child.Metadata, destination.Child.Metadata); // Dictionary: same reference
+
+            Assert.NotNull(destination.Child.Tags);
+            Assert.Empty(destination.Child.Tags);
+            Assert.NotSame(source.Child.Tags, destination.Child.Tags); // List: new instance
+        }
+
+        [Fact]
+        public void Map_DeepObjectMappingWithComplexCollections_ShouldMapComplexCollectionsCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObjectWithComplexCollections
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChildWithComplexCollections
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    ComplexMetadata = new Dictionary<string, ComplexMetadataItem>
+                    {
+                        { "key1", new ComplexMetadataItem { Id = 1, Value = "value1" } },
+                        { "key2", new ComplexMetadataItem { Id = 2, Value = "value2" } }
+                    },
+                    ComplexTags = new List<ComplexTag>
+                    {
+                        new ComplexTag { Id = 1, Name = "tag1", IsActive = true },
+                        new ComplexTag { Id = 2, Name = "tag2", IsActive = false }
+                    },
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObjectWithComplexCollections, DeepDestinationObjectWithComplexCollections>(source);
+
+            // Assert
+            Assert.NotNull(destination.Child.ComplexMetadata);
+            Assert.Equal(source.Child.ComplexMetadata.Count, destination.Child.ComplexMetadata.Count);
+            
+            // Verify complex dictionary items are mapped
+            Assert.NotNull(destination.Child.ComplexMetadata["key1"]);
+            Assert.Equal(source.Child.ComplexMetadata["key1"].Id, destination.Child.ComplexMetadata["key1"].Id);
+            Assert.Equal(source.Child.ComplexMetadata["key1"].Value, destination.Child.ComplexMetadata["key1"].Value);
+            
+            Assert.NotNull(destination.Child.ComplexMetadata["key2"]);
+            Assert.Equal(source.Child.ComplexMetadata["key2"].Id, destination.Child.ComplexMetadata["key2"].Id);
+            Assert.Equal(source.Child.ComplexMetadata["key2"].Value, destination.Child.ComplexMetadata["key2"].Value);
+
+            // Verify complex list items are mapped
+            Assert.NotNull(destination.Child.ComplexTags);
+            Assert.Equal(source.Child.ComplexTags.Count, destination.Child.ComplexTags.Count);
+            
+            Assert.Equal(source.Child.ComplexTags[0].Id, destination.Child.ComplexTags[0].Id);
+            Assert.Equal(source.Child.ComplexTags[0].Name, destination.Child.ComplexTags[0].Name);
+            Assert.Equal(source.Child.ComplexTags[0].IsActive, destination.Child.ComplexTags[0].IsActive);
+            
+            Assert.Equal(source.Child.ComplexTags[1].Id, destination.Child.ComplexTags[1].Id);
+            Assert.Equal(source.Child.ComplexTags[1].Name, destination.Child.ComplexTags[1].Name);
+            Assert.Equal(source.Child.ComplexTags[1].IsActive, destination.Child.ComplexTags[1].IsActive);
+        }
+
+        [Fact]
+        public void Map_DeepObjectMappingWithNestedCollections_ShouldMapNestedCollectionsCorrectly()
+        {
+            // Arrange
+            var source = new DeepSourceObjectWithNestedCollections
+            {
+                Id = 1,
+                Name = "Root Object",
+                Child = new DeepSourceChildWithNestedCollections
+                {
+                    ChildId = 100,
+                    Description = "Child Object",
+                    NestedMetadata = new Dictionary<string, List<string>>
+                    {
+                        { "category1", new List<string> { "item1", "item2" } },
+                        { "category2", new List<string> { "item3", "item4", "item5" } }
+                    },
+                    NestedTags = new List<List<string>>
+                    {
+                        new List<string> { "tag1", "tag2" },
+                        new List<string> { "tag3", "tag4", "tag5" }
+                    },
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = new DateTime(2024, 1, 1)
+                    }
+                }
+            };
+
+            // Act
+            var destination = ValueMapper.Map<DeepSourceObjectWithNestedCollections, DeepDestinationObjectWithNestedCollections>(source);
+
+            // Assert
+            Assert.NotNull(destination.Child.NestedMetadata);
+            Assert.Equal(source.Child.NestedMetadata.Count, destination.Child.NestedMetadata.Count);
+            
+            // Verify nested dictionary with lists
+            Assert.NotNull(destination.Child.NestedMetadata["category1"]);
+            Assert.Equal(source.Child.NestedMetadata["category1"].Count, destination.Child.NestedMetadata["category1"].Count);
+            Assert.Equal(source.Child.NestedMetadata["category1"][0], destination.Child.NestedMetadata["category1"][0]);
+            Assert.Equal(source.Child.NestedMetadata["category1"][1], destination.Child.NestedMetadata["category1"][1]);
+            
+            Assert.NotNull(destination.Child.NestedMetadata["category2"]);
+            Assert.Equal(source.Child.NestedMetadata["category2"].Count, destination.Child.NestedMetadata["category2"].Count);
+            Assert.Equal(source.Child.NestedMetadata["category2"][0], destination.Child.NestedMetadata["category2"][0]);
+            Assert.Equal(source.Child.NestedMetadata["category2"][1], destination.Child.NestedMetadata["category2"][1]);
+            Assert.Equal(source.Child.NestedMetadata["category2"][2], destination.Child.NestedMetadata["category2"][2]);
+
+            // Verify nested list of lists
+            Assert.NotNull(destination.Child.NestedTags);
+            Assert.Equal(source.Child.NestedTags.Count, destination.Child.NestedTags.Count);
+            
+            Assert.Equal(source.Child.NestedTags[0].Count, destination.Child.NestedTags[0].Count);
+            Assert.Equal(source.Child.NestedTags[0][0], destination.Child.NestedTags[0][0]);
+            Assert.Equal(source.Child.NestedTags[0][1], destination.Child.NestedTags[0][1]);
+            
+            Assert.Equal(source.Child.NestedTags[1].Count, destination.Child.NestedTags[1].Count);
+            Assert.Equal(source.Child.NestedTags[1][0], destination.Child.NestedTags[1][0]);
+            Assert.Equal(source.Child.NestedTags[1][1], destination.Child.NestedTags[1][1]);
+            Assert.Equal(source.Child.NestedTags[1][2], destination.Child.NestedTags[1][2]);
+        }
+
+        [Fact]
+        public void Map_CollectionMappingBehavior_ShouldBeAccurate()
+        {
+            // This test verifies the exact behavior documented in README
+            var source = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Test",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Test Child",
+                    Metadata = new Dictionary<string, string> { { "key1", "value1" } },
+                    Tags = new List<string> { "tag1", "tag2" },
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    }
+                }
+            };
+
+            var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+
+            // Test 1: Lists create new instances (shallow copy)
+            Assert.NotSame(source.Child.Tags, destination.Child.Tags);
+            Assert.Equal(source.Child.Tags.Count, destination.Child.Tags.Count);
+            Assert.Equal(source.Child.Tags[0], destination.Child.Tags[0]);
+            Assert.Equal(source.Child.Tags[1], destination.Child.Tags[1]);
+
+            // Test 2: Dictionaries copy references (same instance)
+            Assert.Same(source.Child.Metadata, destination.Child.Metadata);
+            Assert.Equal(source.Child.Metadata.Count, destination.Child.Metadata.Count);
+            Assert.Equal(source.Child.Metadata["key1"], destination.Child.Metadata["key1"]);
+
+            // Test 3: Complex objects are deep mapped (new instances)
+            Assert.NotSame(source.Child.GrandChild, destination.Child.GrandChild);
+            Assert.Equal(source.Child.GrandChild.GrandChildId, destination.Child.GrandChild.GrandChildId);
+            Assert.Equal(source.Child.GrandChild.IsActive, destination.Child.GrandChild.IsActive);
+            Assert.Equal(source.Child.GrandChild.CreatedDate, destination.Child.GrandChild.CreatedDate);
+
+            // Test 4: Null handling
+            var sourceWithNulls = new DeepSourceObject
+            {
+                Id = 1,
+                Name = "Test",
+                Child = new DeepSourceChild
+                {
+                    ChildId = 100,
+                    Description = "Test Child",
+                    Metadata = null,
+                    Tags = null,
+                    GrandChild = new DeepSourceGrandChild
+                    {
+                        GrandChildId = 1000,
+                        IsActive = true,
+                        CreatedDate = DateTime.Now
+                    }
+                }
+            };
+
+            var destinationWithNulls = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(sourceWithNulls);
+
+            // Lists: null becomes empty list
+            Assert.NotNull(destinationWithNulls.Child.Tags);
+            Assert.Empty(destinationWithNulls.Child.Tags);
+
+            // Dictionaries: null remains null
+            Assert.Null(destinationWithNulls.Child.Metadata);
+        }
     }
 }

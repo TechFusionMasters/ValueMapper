@@ -9,7 +9,7 @@ A high-performance, lightweight object-to-object mapper for .NET with zero depen
 | Zero Dependencies            | ✅                  | ✅            | ❌             |
 | Basic Property Mapping       | ✅                  | ✅            | ✅             |
 | Flattening                   | ❌                  | ✅            | ✅             |
-| Deep Object Mapping          | ❌                  | ✅            | ✅             |
+| Deep Object Mapping          | ✅                  | ✅            | ✅             |
 | Collection Mapping           | ✅                  | ✅            | ✅             |
 | Enum Mapping                 | ✅                  | ✅            | ✅             |
 | Custom Property Mapping      | ✅ (attr)           | ✅            | ✅             |
@@ -167,6 +167,75 @@ public class Destination
 }
 ```
 
+### Deep Object Mapping
+
+ValueMapper supports mapping nested objects with multiple levels of depth, including collections and dictionaries:
+
+```csharp
+public class DeepSourceObject
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public DeepSourceChild Child { get; set; }
+}
+
+public class DeepSourceChild
+{
+    public int ChildId { get; set; }
+    public string Description { get; set; }
+    public Dictionary<string, string> Metadata { get; set; }
+    public List<string> Tags { get; set; }
+    public DeepSourceGrandChild GrandChild { get; set; }
+}
+
+public class DeepSourceGrandChild
+{
+    public int GrandChildId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedDate { get; set; }
+}
+
+// Destination classes with matching structure
+public class DeepDestinationObject
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public DeepDestinationChild Child { get; set; }
+}
+
+// ... similar structure for DeepDestinationChild and DeepDestinationGrandChild
+
+var source = new DeepSourceObject
+{
+    Id = 1,
+    Name = "Root Object",
+    Child = new DeepSourceChild
+    {
+        ChildId = 100,
+        Description = "Child Object",
+        Metadata = new Dictionary<string, string> { { "key1", "value1" } },
+        Tags = new List<string> { "tag1", "tag2" },
+        GrandChild = new DeepSourceGrandChild
+        {
+            GrandChildId = 1000,
+            IsActive = true,
+            CreatedDate = new DateTime(2024, 1, 1)
+        }
+    }
+};
+
+var destination = ValueMapper.Map<DeepSourceObject, DeepDestinationObject>(source);
+// All nested objects are automatically mapped
+```
+
+**Collection Mapping Behavior:**
+- **Lists**: Creates new List instances (shallow copy - same objects, new container)
+  - Null sources become empty lists `[]`
+- **Dictionaries**: Copies references (same instance)
+  - Null sources remain null
+- **Complex Objects**: Deep mapping with new instances
+- **Primitive Types**: Direct value copying
+
 ## Performance
 
 ValueMapper is designed for high performance. Here are some benchmark results comparing it with other popular mappers:
@@ -244,12 +313,7 @@ ValueMapper.Clear<Source, Destination>();
 
 ## Known Limitations
 
-1. Deep object mapping is not currently supported
-
-   - The `Map_DeepObjectMapping_ShouldMapCorrectly` test demonstrates this limitation
-   - Complex nested objects with multiple levels are not automatically mapped
-
-2. No circular reference detection
+1. No circular reference detection
 3. No support for mapping private properties
 4. Collection type conversion (e.g., List<T> to Array<T>) is not supported
 5. No support for custom value converters

@@ -149,4 +149,83 @@ namespace UnitTestXUnitNet6
         public bool GrandChildIsActive { get; set; }
         public DateTime GrandChildCreatedDate { get; set; }
     }
+
+    // Models for testing complex collections in deep object mapping
+    public class ComplexMetadataItem
+    {
+        public int Id { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class ComplexTag
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class DeepSourceObjectWithComplexCollections
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DeepSourceChildWithComplexCollections Child { get; set; }
+    }
+
+    public class DeepSourceChildWithComplexCollections
+    {
+        public int ChildId { get; set; }
+        public string Description { get; set; }
+        public Dictionary<string, ComplexMetadataItem> ComplexMetadata { get; set; }
+        public List<ComplexTag> ComplexTags { get; set; }
+        public DeepSourceGrandChild GrandChild { get; set; }
+    }
+
+    public class DeepDestinationObjectWithComplexCollections
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DeepDestinationChildWithComplexCollections Child { get; set; }
+    }
+
+    public class DeepDestinationChildWithComplexCollections
+    {
+        public int ChildId { get; set; }
+        public string Description { get; set; }
+        public Dictionary<string, ComplexMetadataItem> ComplexMetadata { get; set; }
+        public List<ComplexTag> ComplexTags { get; set; }
+        public DeepDestinationGrandChild GrandChild { get; set; }
+    }
+
+    // Models for testing nested collections in deep object mapping
+    public class DeepSourceObjectWithNestedCollections
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DeepSourceChildWithNestedCollections Child { get; set; }
+    }
+
+    public class DeepSourceChildWithNestedCollections
+    {
+        public int ChildId { get; set; }
+        public string Description { get; set; }
+        public Dictionary<string, List<string>> NestedMetadata { get; set; }
+        public List<List<string>> NestedTags { get; set; }
+        public DeepSourceGrandChild GrandChild { get; set; }
+    }
+
+    public class DeepDestinationObjectWithNestedCollections
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DeepDestinationChildWithNestedCollections Child { get; set; }
+    }
+
+    public class DeepDestinationChildWithNestedCollections
+    {
+        public int ChildId { get; set; }
+        public string Description { get; set; }
+        public Dictionary<string, List<string>> NestedMetadata { get; set; }
+        public List<List<string>> NestedTags { get; set; }
+        public DeepDestinationGrandChild GrandChild { get; set; }
+    }
 } 

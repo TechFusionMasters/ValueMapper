@@ -16,3 +16,4 @@
 /ValueMapper/ValueMapperCore/bin
 /ValueMapper/ValueMapperCore/obj
 /ValueMapper/.vs
+/ValueMapper/Benchmark/BenchmarkDotNet.Artifacts
