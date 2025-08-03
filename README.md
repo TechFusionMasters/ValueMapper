@@ -242,33 +242,32 @@ ValueMapper is designed for high performance. Here are some benchmark results co
 
 ### Performance Comparison
 
-#### Single Object Mapping (Relative to Manual Implementation)
+#### Single Object Mapping
 
-| Mapper              | Performance | Relative Slowdown |
-| ------------------- | ----------- | ----------------- |
-| Manual (baseline)   | 0.000ms     | 1x                |
-| ValueMapper         | 0.001ms     | 11.95x slower     |
-| AutoMapper          | 0.002ms     | 12.67x slower     |
-| Mapster             | 0.001ms     | 8.11x slower      |
-| ManuallyImplemented | 0.001ms     | 7.29x slower      |
+| Mapper                | Mean Time (ns) | Allocated (B) | Relative Speed |
+| --------------------- | -------------- | ------------- | -------------- |
+| ManuallyImplemented   | **10.70 ns**   | 72 B          | 1x (baseline)  |
+| Manual                | 11.35 ns       | 72 B          | 1.06x          |
+| Mapster               | 49.65 ns       | 120 B         | 4.6x slower    |
+| AutoMapper            | 92.11 ns       | 120 B         | 8.1x slower    |
+| ValueMapper           | 108.08 ns      | 72 B          | 9.6x slower    |
 
 #### Collection Mapping (100,000 items)
 
-| Mapper                        | Time per Operation |
-| ----------------------------- | ------------------ |
-| ValueMapperCollection         | 39.840ms           |
-| AutoMapperCollection          | 70.800ms           |
-| MapsterCollection             | 65.340ms           |
-| ManuallyImplementedCollection | 45.310ms           |
+| Mapper Collection     | Mean Time (ms) | Allocated (MB) | Relative Speed |
+| --------------------- | -------------- | -------------- | -------------- |
+| ManuallyImplemented   | **18.86 ms**   | 8 MB           | 1x (baseline)  |
+| ValueMapper           | 20.43 ms       | 9.6 MB         | 1.08x slower   |
+| AutoMapper            | 28.49 ms       | 13.3 MB        | 1.51x slower   |
+| Mapster               | 30.66 ms       | 12 MB          | 1.63x slower   |
 
 #### Warmup Performance (First-time Use)
 
-| Mapper              | Warmup Time      |
-| ------------------- | ---------------- |
-| ValueMapper         | 0ms              |
-| AutoMapper          | 7ms              |
-| Mapster             | 10ms             |
-| ManuallyImplemented | No warmup needed |
+| Mapper Warmup | Mean Time     | Notes       |
+| ------------- | ------------- | ----------- |
+| ValueMapper   | **615.91 ns** | Fastest     |
+| Mapster       | 720.70 µs     | Slower      |
+| AutoMapper    | 1.398 ms      | Much slower |
 
 ### Key Performance Insights:
 
