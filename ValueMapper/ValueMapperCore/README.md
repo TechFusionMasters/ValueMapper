@@ -289,6 +289,20 @@ ValueMapper is designed for high performance. Here are some benchmark results co
    - No significant warmup overhead
    - Better startup time compared to both Mapster and AutoMapper
 
+### Other Observations
+
+- **Bimodal distribution** in AutoMapper, Mapster, and ManuallyImplementedMapper suggests occasional performance variability.
+- **AutoMapper and Mapster** have significantly higher memory allocations (up to 1.67×).
+- **ManuallyImplemented** options consistently perform best in both speed and memory.
+
+### ✅ Recommendation
+
+For **maximum performance**, prefer:
+
+- **`ManuallyImplemented`** mapper (best for both individual and collection mapping).
+- If needing flexibility with a balance of performance: **`ValueMapper`**.
+- **Avoid `Mapster` and `AutoMapper`** in large collection transformations if performance is critical.
+
 Run the benchmarks yourself:
 
 ```shell
